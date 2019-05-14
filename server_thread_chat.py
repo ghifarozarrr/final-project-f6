@@ -40,7 +40,6 @@ class Server(threading.Thread):
 			clt = ProcessTheClient(self.connection, self.client_address)
 			clt.start()
 			self.the_clients.append(clt)
-	
 
 def main():
 	svr = Server()
@@ -48,4 +47,3 @@ def main():
 
 if __name__=="__main__":
 	main()
-
