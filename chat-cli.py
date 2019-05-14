@@ -32,6 +32,12 @@ class ChatClient:
             elif (command=='logout'):
                 return self.logout(self.tokenid)
                 print 'in logout'
+            elif (command == 'mkgr'):
+                group = j[1].strip()
+                return self.mkgr(group)
+            elif (command == 'join'):
+                group = j[1].strip()
+                return self.join(group)
             else:
                 return "*Maaf, command tidak benar"
         except IndexError:
@@ -77,6 +83,24 @@ class ChatClient:
             return "message sent to {}" . format(usernameto)
         else:
             return "Error, {}" . format(result['message'])
+
+    def mkgr(self, group_name):
+        if (self.tokenid == ""):
+            return "Error, not authorized"
+        string = "mkgr {} {} \r\n".format(group_name, self.tokenid)
+        result = self.sendstring(string)
+        if result['status'] == 'OK':
+            return "{}".format(json.dumps(result['message']))
+        else:
+            return "Error, {}".format(result['message'])
+
+    def join(self, group_name):
+        if (self.tokenid == ""):
+            return "Error, not authorized"
+        string = "join {} {} \r\n".format(group_name, self.tokenid)
+        result = self.sendstring(string)
+        if result['status'] == 'OK':
+            return "{}".format(json.dumps(result['message']))
 
     def inbox(self):
         if (self.tokenid==""):
