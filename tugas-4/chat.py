@@ -55,6 +55,16 @@ class Chat:
                 sessionid = j[2].strip()
                 print "{} is joining {}...".format(self.sessions[sessionid]['username'], group)
                 return self.join(group, sessionid)
+            elif (command == 'listgroup'):
+                group = j[1].strip()
+                sessionid = j[2].strip()
+                print "{} {}".format(command, group)
+                return self.listgroup(group, sessionid)
+            elif (command == 'leave'):
+                group = j[1].strip()
+                sessionid = j[2].strip()
+                print "{} {}".format(command, group)
+                return self.leave(group, sessionid)
             else:
                 return {'status': 'ERROR', 'message': '**Protocol Tidak Benar'}
         except IndexError:
@@ -115,7 +125,7 @@ class Chat:
         return {'status': 'OK', 'messages': msgs}
 
     def mkgr(self, group_name, sessionid):
-        if group_name in self.groups:
+        if (group_name in self.groups):
             return {'status': 'ERROR', 'message': 'Group does exist'}
         self.groups[group_name] = {'group_name': group_name, 'log': [], 'users': []}
         creator = self.sessions[sessionid]['username']
@@ -123,13 +133,30 @@ class Chat:
         return {'status': 'OK', 'message': self.groups[group_name]}
 
     def join(self, group_name, sessionid):
-        if group_name not in self.groups:
+        if (group_name not in self.groups):
             return {'status': 'ERROR', 'message': 'Group not found'}
         username = self.sessions[sessionid]['username']
-        if username in self.groups[group_name]['users']:
+        if (username in self.groups[group_name]['users']):
             return {'status': 'ERROR', 'message': 'You have already in group'}
         self.groups[group_name]['users'].append(username)
         return {'status': 'OK', 'message': 'Group joined successfully'}
+
+    def listgroup(self, group_name, sessionid):
+        if (group_name not in self.groups):
+            return {'status': 'ERROR', 'message': 'Group not found'}
+        username = self.sessions[sessionid]['username']
+        if (username not in self.groups[group_name]['users']):
+            return {'status': 'ERROR', 'message': 'You are not group member'}
+        return {'status': 'OK', 'message': self.groups[group_name]['users']}
+
+    def leave(self, group_name, sessionid):
+        if (group_name not in self.groups):
+            return {'status': 'ERROR', 'message': 'Group not found'}
+        username = self.sessions[sessionid]['username']
+        if username in self.groups[group_name]['users']:
+            self.groups[group_name]['users'].remove(username)
+            return {'status': 'OK', 'message': 'You left the [{}] group'.format(group_name)}
+        return {'status': 'ERROR', 'message': 'You are not group member'}
 
 if __name__ == "__main__":
     j = Chat()
