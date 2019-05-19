@@ -3,6 +3,7 @@ import os.path
 import uuid
 from glob import glob
 from datetime import datetime
+import string
 
 class HttpServer:
 	def __init__(self):
@@ -48,6 +49,7 @@ class HttpServer:
 	def http_get(self,object_address):
 		files = glob('./*')
 		thedir='.'
+		object_address=string.replace(object_address, '/', '\\')
 		if thedir+object_address not in files:
 			return self.response(404,'Not Found','',{})
 		fp = open(thedir+object_address,'r')
@@ -73,18 +75,3 @@ if __name__=="__main__":
 	print d
         d = httpserver.http_get('testing.txt')
 	print d
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
