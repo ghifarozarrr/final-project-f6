@@ -39,7 +39,7 @@ class Chat:
             elif (command == 'send'):
                 sessionid = j[1].strip()
                 usernameto = j[2].strip()
-                message = ""
+                message = ''
                 for w in j[3:]:
                     message = "{} {}".format(message, w)
                 usernamefrom = self.sessions[sessionid]['username']
@@ -152,6 +152,20 @@ class Chat:
     def send_message(self, sessionid, username_from, username_dest, message):
         if (sessionid not in self.sessions):
             return {'status': 'ERROR', 'message': 'Session not found'}
+
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        
+        db.execute('SELECT * FROM user where user_name=?', (username_from,))
+        sender = db.fetchone()
+        user = {'nama': sender[1], 'password': sender[2], 'incoming': {}, 'outgoing': {}}
+        self.users[sender[1]] = user
+
+        db.execute('SELECT * FROM user where user_name=?', (username_dest,))
+        dest = db.fetchone()
+        user = {'nama': dest[1], 'password': dest[2], 'incoming': {}, 'outgoing': {}}
+        self.users[dest[1]] = user
+
         s_fr = self.get_user(username_from)
         s_to = self.get_user(username_dest)
 
@@ -159,29 +173,14 @@ class Chat:
             return {'status': 'ERROR', 'message': 'User not found'}
 
         message = {'msg_from': s_fr['nama'], 'msg_to': s_to['nama'], 'msg': message}
-        outqueue_sender = s_fr['outgoing']
         inqueue_receiver = s_to['incoming']
         try:
-            outqueue_sender[username_from].put(message)
-        except KeyError:
-            outqueue_sender[username_from] = Queue()
-            outqueue_sender[username_from].put(message)
-        try:
-            inqueue_receiver[username_from].put(message)
+            db.execute('INSERT INTO chat (sender_id, receiver_id, message, type, received_time) values(?, ?, ?, ?, ?)', (username_from, username_dest, str(message), 'chat', datetime.datetime.now()))
+            db_conn.commit()
         except KeyError:
             inqueue_receiver[username_from] = Queue()
             inqueue_receiver[username_from].put(message)
         return {'status': 'OK', 'message': 'Message Sent'}
-
-    def get_inbox(self, username):
-        s_fr = self.get_user(username)
-        incoming = s_fr['incoming']
-        msgs = {}
-        for users in incoming:
-            msgs[users] = []
-            while not incoming[users].empty():
-                msgs[users].append(s_fr['incoming'][users].get_nowait())
-        return {'status': 'OK', 'messages': msgs}
 
     def mkgr(self, group_name, sessionid):
         if (group_name in self.groups):

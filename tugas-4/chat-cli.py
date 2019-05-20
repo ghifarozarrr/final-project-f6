@@ -14,7 +14,7 @@ class ChatClient:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_address = (TARGET_IP,TARGET_PORT)
         self.sock.connect(self.server_address)
-        self.tokenid=""
+        self.tokenid = ''
 
     def proses(self,cmdline):
         j=cmdline.split(" ")
@@ -44,8 +44,7 @@ class ChatClient:
                 for w in j[2:]:
                     message="{} {}" . format(message,w)
                 return self.sendmessage(usernameto,message)
-            
-            
+                        
             elif (command == 'mkgr'):
                 group = j[1].strip()
                 return self.mkgr(group)
@@ -121,8 +120,8 @@ class ChatClient:
         else:
             return "Error, {}" . format(result['message'])
 
-    def sendmessage(self,usernameto="xxx",message="xxx"):
-        if (self.tokenid==""):
+    def sendmessage(self, usernameto, message):
+        if (self.tokenid==''):
             return "Error, not authorized"
         string="send {} {} {} \r\n" . format(self.tokenid,usernameto,message)
         result = self.sendstring(string)
