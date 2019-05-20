@@ -13,12 +13,6 @@ class Chat:
         self.sessions = {}
         self.users = {}
         self.groups = {}
-        self.users['messi'] = {'nama': 'Lionel Messi', 'negara': 'Argentina', 'password': 'surabaya', 'incoming': {},
-                               'outgoing': {}}
-        self.users['henderson'] = {'nama': 'Jordan Henderson', 'negara': 'Inggris', 'password': 'surabaya',
-                                   'incoming': {}, 'outgoing': {}}
-        self.users['lineker'] = {'nama': 'Gary Lineker', 'negara': 'Inggris', 'password': 'surabaya', 'incoming': {},
-                                 'outgoing': {}}
 
     def proses(self, data):
         j = data.split(" ")
@@ -30,11 +24,18 @@ class Chat:
                 password = j[2].strip()
                 print "auth_register {}".format(username)
                 return self.user_register(username, password)
-            elif (command == 'auth'):
+
+            elif (command == 'auth_login'):
                 username = j[1].strip()
                 password = j[2].strip()
-                print "auth {}".format(username)
-                return self.autentikasi_user(username, password)
+                print "auth_login {}".format(username)
+                return self.user_login(username, password)
+
+            elif (command == 'auth_logout'):
+                sessionid = j[1].strip()
+                print "auth_logout {}".format(sessionid)
+                return self.user_logout(sessionid)
+
             elif (command == 'send'):
                 sessionid = j[1].strip()
                 usernameto = j[2].strip()
@@ -49,10 +50,7 @@ class Chat:
                 username = self.sessions[sessionid]['username']
                 print "inbox {}".format(sessionid)
                 return self.get_inbox(username)
-            elif (command == 'logout'):
-                sessionid = j[1].strip()
-                print sessionid
-                return self.logout(sessionid)
+        
             elif (command == 'mkgr'):
                 group = j[1].strip()
                 sessionid = j[2].strip()
@@ -104,19 +102,26 @@ class Chat:
             db_conn.commit()
             return {'status': 'OK'}
 
-    def autentikasi_user(self, username, password):
-        if (username not in self.users):
-            return {'status': 'ERROR', 'message': 'User Tidak Ada'}
-        if (self.users[username]['password'] != password):
-            return {'status': 'ERROR', 'message': 'Password Salah'}
+    def user_login(self, username, password):
+        credentials = (username, password)
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute('SELECT * FROM user where user_name=? AND password=?', credentials)
+        auth = db.fetchone()
+        if auth == None:
+            return {'status': 'ERROR', 'message': 'Username/Password salah'}
+
         tokenid = str(uuid.uuid4())
-        self.sessions[tokenid] = {'username': username, 'userdetail': self.users[username]}
+        user = {'nama': auth[1], 'password': auth[2], 'incoming': {}, 'outgoing': {}}
+        self.users[auth[1]] = user
+        self.sessions[tokenid] = {'username': username, 'userdetail': user}
         return {'status': 'OK', 'tokenid': tokenid}
 
-    def logout(self, sessionid):
+    def user_logout(self, sessionid):
         if (sessionid == ''):
             return {'status': 'ERROR', 'message': 'Login first to log out!'}
         self.sessions.pop(sessionid, None)
+        self.tokenid = ''
         return {'status': 'OK', 'message': 'Session ID Deleted. Logged out!'}
 
     def get_user(self, username):
@@ -211,13 +216,3 @@ class Chat:
 
 if __name__ == "__main__":
     j = Chat()
-    sesi = j.proses("auth messi surabaya")
-    print sesi
-    # sesi = j.autentikasi_user('messi','surabaya')
-    # print sesi
-    tokenid = sesi['tokenid']
-    print j.proses("send {} henderson hello gimana kabarnya son ".format(tokenid))
-    # print j.send_message(tokenid,'messi','henderson','hello son')
-    # print j.send_message(tokenid,'henderson','messi','hello si')
-    # print j.send_message(tokenid,'lineker','messi','hello si dari lineker')
-    print j.get_inbox('messi')

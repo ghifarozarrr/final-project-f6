@@ -26,10 +26,15 @@ class ChatClient:
                 username=j[1].strip()
                 password=j[2].strip()
                 return self.register(username,password)
-            elif (command=='auth'):
+
+            elif (command=='auth_login'):
                 username=j[1].strip()
                 password=j[2].strip()
                 return self.login(username,password)
+
+            elif (command=='auth_logout'):
+                return self.logout(self.tokenid)
+
             elif (command=='send'):
                 usernameto = j[1].strip()
                 message=""
@@ -38,9 +43,7 @@ class ChatClient:
                 return self.sendmessage(usernameto,message)
             elif (command=='inbox'):
                 return self.inbox()
-            elif (command=='logout'):
-                return self.logout(self.tokenid)
-                print 'in logout'
+            
             elif (command == 'mkgr'):
                 group = j[1].strip()
                 return self.mkgr(group)
@@ -89,7 +92,7 @@ class ChatClient:
             return "Error, {}" . format(result['message'])
 
     def login(self,username,password):
-        string="auth {} {} \r\n" . format(username,password)
+        string="auth_login {} {} \r\n" . format(username,password)
         result = self.sendstring(string)
         if result['status']=='OK':
             self.tokenid=result['tokenid']
@@ -98,7 +101,7 @@ class ChatClient:
             return "Error, {}" . format(result['message'])
 
     def logout(self, sessionid):
-        string="logout {} \r\n" . format(sessionid)
+        string="auth_logout {} \r\n" . format(sessionid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
             self.tokenid = ""
