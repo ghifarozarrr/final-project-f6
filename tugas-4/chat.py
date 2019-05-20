@@ -65,6 +65,19 @@ class Chat:
                 sessionid = j[2].strip()
                 print "{} {}".format(command, group)
                 return self.leave(group, sessionid)
+            elif (command == 'sendgroup'):
+                group = j[1].strip()
+                sessionid = j[2].strip()
+                message = ""
+                for w in j[3:]:
+                    message = "{} {}".format(message, w)
+                print "{} is sending message to group : {}".format(self.sessions[sessionid]['username'], group)
+                return self.sendgroup(group, sessionid, message)
+            elif (command == 'inboxgroup'):
+                group = j[1].strip()
+                sessionid = j[2].strip()
+                print "inboxgroup {}".format(group)
+                return self.inboxgroup(group, sessionid)
             else:
                 return {'status': 'ERROR', 'message': '**Protocol Tidak Benar'}
         except IndexError:
@@ -157,6 +170,23 @@ class Chat:
             self.groups[group_name]['users'].remove(username)
             return {'status': 'OK', 'message': 'You left the [{}] group'.format(group_name)}
         return {'status': 'ERROR', 'message': 'You are not group member'}
+
+    def sendgroup(self, group_name, sessionid, message):
+        if group_name not in self.groups:
+            return {'status': 'ERROR', 'message': 'Group not found'}
+        username = self.sessions[sessionid]['username']
+        if username not in self.groups[group_name]['users']:
+            return {'status': 'ERROR', 'message': 'You are not group member'}
+        self.groups[group_name]['log'].append({'from': username, 'message': message})
+        return {'status': 'OK', 'message': 'Message sent'}
+
+    def inboxgroup(self, group_name, sessionid):
+        if group_name not in self.groups:
+            return {'status': 'ERROR', 'message': 'Group not found'}
+        username = self.sessions[sessionid]['username']
+        if username not in self.groups[group_name]['users']:
+            return {'status': 'ERROR', 'message': 'You are not group member'}
+        return {'status': 'OK', 'messages': self.groups[group_name]['log']}
 
 if __name__ == "__main__":
     j = Chat()

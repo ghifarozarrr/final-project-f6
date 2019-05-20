@@ -44,6 +44,15 @@ class ChatClient:
             elif (command == 'leave'):
                 group = j[1].strip()
                 return self.leave(group)
+            elif (command == 'sendgroup'):
+                group = j[1].strip()
+                message = ""
+                for w in j[2:]:
+                    message = "{} {}".format(message, w)
+                return self.sendgroup(group, message)
+            elif (command == 'inboxgroup'):
+                group = j[1].strip()
+                return self.inboxgroup(group)
             else:
                 return "*Maaf, command tidak benar"
         except IndexError:
@@ -129,6 +138,24 @@ class ChatClient:
             return "{}".format(result['message'])
         else:
             return "Error, {}".format(result['message'])
+
+    def sendgroup(self, group_name, message):
+        if (self.tokenid == ""):
+            return "Error, not authorized"
+        string = "sendgroup {} {} {} \r\n".format(group_name, self.tokenid, message)
+        result = self.sendstring(string)
+        if result['status'] == 'OK':
+            return "{}".format(json.dumps(result['message']))
+        else:
+            return "Error, {}".format(result['message'])
+
+    def inboxgroup(self, group_name):
+        if (self.tokenid == ""):
+            return "Error, not authorized"
+        string = "inboxgroup {} {} \r\n".format(group_name, self.tokenid)
+        result = self.sendstring(string)
+        if result['status'] == 'OK':
+            return "{}".format(json.dumps(result['messages']))
 
     def inbox(self):
         if (self.tokenid==""):
