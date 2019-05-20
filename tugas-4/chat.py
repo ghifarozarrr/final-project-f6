@@ -46,6 +46,16 @@ class Chat:
                 print "send message from {} to {}".format(usernamefrom, usernameto)
                 return self.send_message(sessionid, usernamefrom, usernameto, message)
 
+            elif (command == 'send_file'):
+                sessionid = j[1].strip()
+                usernameto = j[2].strip()
+                message = ''
+                for w in j[3:]:
+                    message = "{} {}".format(message, w)
+                usernamefrom = self.sessions[sessionid]['username']
+                print 'send file from {} to {}'.format(usernamefrom, usernameto)
+                return self.send_file(sessionid, usernamefrom, usernameto, message)
+
             elif (command == 'inbox'):
                 sessionid = j[1].strip()
                 username = self.sessions[sessionid]['username']
@@ -181,6 +191,74 @@ class Chat:
             inqueue_receiver[username_from] = Queue()
             inqueue_receiver[username_from].put(message)
         return {'status': 'OK', 'message': 'Message Sent'}
+
+    def start_file_socket(self):
+        try:
+            print('Opening data socket on ', '0.0.0.0:1338')
+            self.data_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.data_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.data_socket.bind(('0.0.0.0', 1338))
+            self.data_socket.listen(10)
+            print('Data socket has started. Listening on 1338')
+            return self.data_socket.accept()
+        except Exception as e:
+            print('Error on data socket client')
+            print(e)
+            self.close_data_socket()
+
+    def send_file(self, sessionid, username_from, username_dest, message):
+        if (sessionid not in self.sessions):
+            return {'status': 'ERROR', 'message': 'Session not found'}
+
+        client_file_socket, client_data_address = self.start_file_socket()
+
+        message = '.\\' + message.lstrip()
+        message = os.path.basename(message)
+        message = message.replace(' \r\n',' ')
+        filename = str(datetime.datetime.now())[:19]
+        filename = filename.replace(':','_')
+        filename = filename.replace(' ','_')
+        filename = filename.replace('-','_')
+        message = filename +'_'+message
+
+        f = open(os.path.join(os.getcwd(),'upload',str(message)), 'wb')
+        while True:
+            bytes = client_file_socket.recv(1024)
+            if not bytes:
+                break
+            f.write(bytes)
+        f.close()
+
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+
+        db.execute('SELECT * FROM user where user_name=?', (username_from,))
+        sender = db.fetchone()
+        user = {'nama': sender[1], 'password': sender[2], 'incoming': {}, 'outgoing': {}}
+        self.users[sender[1]] = user
+
+        db.execute('SELECT * FROM user where user_name=?', (username_dest,))
+        dest = db.fetchone()
+        user = {'nama': dest[1], 'password': dest[2], 'incoming': {}, 'outgoing': {}}
+        self.users[dest[1]] = user
+
+        s_fr = self.get_user(username_from)
+        s_to = self.get_user(username_dest)
+
+        if (s_fr == False or s_to == False):
+            return {'status': 'ERROR', 'message': 'User not found'}
+
+        message = {'msg_from': s_fr['nama'], 'msg_to': s_to['nama'], 'msg': message}
+        inqueue_receiver = s_to['incoming']
+
+        try:
+            db.execute('INSERT INTO chat (sender_id, receiver_id, message, type, received_time) values(?, ?, ?, ?, ?)', (username_from, username_dest, str(message), 'file', datetime.datetime.now()))
+            db_conn.commit()
+        except KeyError:
+            inqueue_receiver[username_from] = Queue()
+            inqueue_receiver[username_from].put(message)
+
+        return {'status': 'OK', 'message': 'File sent'}
 
     def mkgr(self, group_name, sessionid):
         if (group_name in self.groups):
