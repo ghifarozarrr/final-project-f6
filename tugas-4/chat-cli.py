@@ -165,25 +165,27 @@ class ChatClient:
             return "Error, please login first"
 
         file_name = message.lstrip()
-        string = "send_file {} {} {} \r\n".format(self.tokenid, usernameto, file_name)
-        self.send_string_without_rcv(string)
-        time.sleep(1.1)
-        self.start_file_socket()
-        
-        f = open(file_name, 'rb')
-        bytes = f.read(1024)
-        totalsend = len(bytes)
-        filesize = os.path.getsize(file_name)
-        while True:
-            self.file_socket.send(bytes)
+        if os.path.exists(file_name):
+            string = "send_file {} {} {} \r\n".format(self.tokenid, usernameto, file_name)
+            self.send_string_without_rcv(string)
+            time.sleep(1.1)
+            self.start_file_socket()
+            f = open(file_name, 'rb')
             bytes = f.read(1024)
-            print "{0:.2f}".format((totalsend/float(filesize))*100)+ "% Done"
-            totalsend += len(bytes)
-            if not bytes:
-                break
-        f.close()
-        self.file_socket.close()
-        return self.receive_msg_no_loop()
+            totalsend = len(bytes)
+            filesize = os.path.getsize(file_name)
+            while True:
+                self.file_socket.send(bytes)
+                bytes = f.read(1024)
+                print "{0:.2f}".format((totalsend/float(filesize))*100)+ "% Done"
+                totalsend += len(bytes)
+                if not bytes:
+                    break
+            f.close()
+            self.file_socket.close()
+            return self.receive_msg_no_loop()
+        else:
+            return "Error, file not found"
 
     def mkgr(self, group_name):
         if (self.tokenid == ''):

@@ -171,19 +171,20 @@ class Chat:
         user = {'nama': sender[1], 'password': sender[2], 'incoming': {}, 'outgoing': {}}
         self.users[sender[1]] = user
 
-        db.execute('SELECT * FROM user where user_name=?', (username_dest,))
-        dest = db.fetchone()
-        user = {'nama': dest[1], 'password': dest[2], 'incoming': {}, 'outgoing': {}}
-        self.users[dest[1]] = user
+        try:
+            db.execute('SELECT * FROM user where user_name=?', (username_dest,))
+            dest = db.fetchone()
+            user = {'nama': dest[1], 'password': dest[2], 'incoming': {}, 'outgoing': {}}
+            self.users[dest[1]] = user
+        except TypeError as e:
+            return {'status': 'ERROR', 'message': 'User not found'}
 
         s_fr = self.get_user(username_from)
         s_to = self.get_user(username_dest)
 
-        if (s_fr == False or s_to == False):
-            return {'status': 'ERROR', 'message': 'User not found'}
-
         message = {'msg_from': s_fr['nama'], 'msg_to': s_to['nama'], 'msg': message}
         inqueue_receiver = s_to['incoming']
+
         try:
             db.execute('INSERT INTO chat (sender_id, receiver_id, message, type, received_time) values(?, ?, ?, ?, ?)', (username_from, username_dest, str(message), 'chat', datetime.datetime.now()))
             db_conn.commit()
@@ -237,16 +238,16 @@ class Chat:
         user = {'nama': sender[1], 'password': sender[2], 'incoming': {}, 'outgoing': {}}
         self.users[sender[1]] = user
 
-        db.execute('SELECT * FROM user where user_name=?', (username_dest,))
-        dest = db.fetchone()
-        user = {'nama': dest[1], 'password': dest[2], 'incoming': {}, 'outgoing': {}}
-        self.users[dest[1]] = user
+        try:
+            db.execute('SELECT * FROM user where user_name=?', (username_dest,))
+            dest = db.fetchone()
+            user = {'nama': dest[1], 'password': dest[2], 'incoming': {}, 'outgoing': {}}
+            self.users[dest[1]] = user
+        except TypeError as e:
+            return {'status': 'ERROR', 'message': 'User not found'}
 
         s_fr = self.get_user(username_from)
         s_to = self.get_user(username_dest)
-
-        if (s_fr == False or s_to == False):
-            return {'status': 'ERROR', 'message': 'User not found'}
 
         message = {'msg_from': s_fr['nama'], 'msg_to': s_to['nama'], 'msg': message}
         inqueue_receiver = s_to['incoming']
