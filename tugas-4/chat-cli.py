@@ -4,6 +4,7 @@ import json
 import base64
 import traceback
 import time
+import datetime
 
 TARGET_IP = '127.0.0.1'
 TARGET_PORT = 8889
@@ -15,6 +16,7 @@ class ChatClient:
         self.server_address = (TARGET_IP, TARGET_PORT)
         self.sock.connect(self.server_address)
         self.tokenid = ''
+        
 
     def proses(self, cmdline):
         j=cmdline.split(' ')
@@ -51,6 +53,10 @@ class ChatClient:
                 for w in j[2:]:
                     message = '{} {}'.format(message, w)
                 return self.sendfile(usernameto, message)
+
+            elif (command=='download_file'):
+                filename = j[1].strip()
+                return self.download_file(filename)
 
             elif (command == 'mkgr'):
                 group = j[1].strip()
@@ -199,6 +205,28 @@ class ChatClient:
             return self.receive_msg_no_loop()
         else:
             return "Error, file not found"
+
+    def download_file(self, file_name):
+        if (self.tokenid == ''):
+            return "Error, please login first"
+
+        file_name = file_name.lstrip()
+
+        if not os.path.exists(os.path.join(os.getcwd(),'download',self.tokenid)):
+            folder = os.makedirs(os.path.join(os.getcwd(),'download',self.tokenid))
+
+        string = "download_file {} {} \r\n".format(self.tokenid, file_name)
+        self.send_string_without_rcv(string)     
+        time.sleep(2.5)
+        self.start_file_socket()
+        f = open(os.path.join(os.getcwd(),'download',self.tokenid,file_name), 'wb')
+        while True:
+            bytes = self.file_socket.recv(1024)
+            if not bytes:
+                break
+            f.write(bytes)
+        f.close()
+        self.file_socket.close()
 
     def mkgr(self, group_name):
         if (self.tokenid == ""):

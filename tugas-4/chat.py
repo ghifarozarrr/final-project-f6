@@ -14,6 +14,7 @@ class Chat:
         self.sessions = {}
         self.users = {}
         self.groups = {}
+        self.username = ''
 
     def proses(self, data):
         j = data.split(" ")
@@ -56,6 +57,12 @@ class Chat:
                 usernamefrom = self.sessions[sessionid]['username']
                 print 'send file from {} to {}'.format(usernamefrom, usernameto)
                 return self.send_file(sessionid, usernamefrom, usernameto, message)
+
+            elif (command == 'download_file'):
+                sessionid = j[1].strip()
+                file_name = j[2].strip()
+                print 'download file command'
+                return self.download_file(sessionid, file_name)
 
             elif (command == 'inbox'):
                 sessionid = j[1].strip()
@@ -149,6 +156,7 @@ class Chat:
         user = {'nama': auth[1], 'password': auth[2], 'incoming': {}, 'outgoing': {}}
         self.users[auth[1]] = user
         self.sessions[tokenid] = {'username': username, 'userdetail': user}
+        self.username = user['nama']
         return {'status': 'OK', 'tokenid': tokenid}
 
     def user_logout(self, sessionid):
@@ -277,14 +285,50 @@ class Chat:
         inqueue_receiver = s_to['incoming']
 
         try:
-            db.execute('INSERT INTO chat (sender_id, receiver_id, message, type, received_time) values(?, ?, ?, ?, ?)',
-                       (username_from, username_dest, str(message), 'file', datetime.datetime.now()))
+            db.execute('INSERT INTO chat (sender_id, receiver_id, message, type, received_time) values(?, ?, ?, ?, ?)', (username_from, username_dest, json.dumps(message), 'file', datetime.datetime.now()))
             db_conn.commit()
         except KeyError:
             inqueue_receiver[username_from] = Queue()
             inqueue_receiver[username_from].put(message)
 
         return {'status': 'OK', 'message': 'File sent'}
+
+    def download_file(self, sessionid, file_name):
+        if (sessionid not in self.sessions):
+            return {'status': 'ERROR', 'message': 'Session not found'}
+
+        file_name = file_name.lstrip()
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute('SELECT * FROM chat where receiver_id=? and type = ?', (self.username, 'file', ))
+        files = db.fetchall()
+
+        file_to_download = ''
+
+        for file in files:
+            json_msg = json.loads(file[3])
+            if (file_name == str(json_msg['msg'].rstrip())):
+                file_to_download = file_name
+                break
+
+        if file_to_download != '':
+            client_data_socket, client_data_address = self.start_file_socket()
+            f = open(os.path.join(os.getcwd(),'upload',str(file_to_download)), 'rb')
+            bytes = f.read(1024)
+            totalsend = len(bytes)
+            filesize = os.path.getsize('upload/' + file_to_download)
+            while True:
+                client_data_socket.send(bytes)
+                bytes = f.read(1024)
+                print "{0:.2f}".format((totalsend/float(filesize))*100)+ "% Done"
+                totalsend += len(bytes)
+                if not bytes:
+                    break
+            f.close()
+            self.data_socket.close()
+            return {'status': 'OK', 'message': 'File downloaded'}
+        
+        return {'status': 'ERROR', 'message': 'File not found'}
 
     def mkgr(self, group_name, username):
         credentials = (group_name, username)
