@@ -8,6 +8,7 @@ import datetime
 import base64
 from Queue import *
 
+
 class Chat:
     def __init__(self):
         self.sessions = {}
@@ -61,40 +62,51 @@ class Chat:
                 username = self.sessions[sessionid]['username']
                 print "inbox {}".format(sessionid)
                 return self.get_inbox(username)
-        
+
             elif (command == 'mkgr'):
                 group = j[1].strip()
                 sessionid = j[2].strip()
+                username = self.sessions[sessionid]['username']
                 print "creating group {}...".format(group)
-                return self.mkgr(group, sessionid)
+                return self.mkgr(group, username)
+
             elif (command == 'join'):
                 group = j[1].strip()
                 sessionid = j[2].strip()
+                username = self.sessions[sessionid]['username']
                 print "{} is joining {}...".format(self.sessions[sessionid]['username'], group)
-                return self.join(group, sessionid)
+                return self.join(group, username)
+
             elif (command == 'listgroup'):
                 group = j[1].strip()
                 sessionid = j[2].strip()
+                username = self.sessions[sessionid]['username']
                 print "{} {}".format(command, group)
-                return self.listgroup(group, sessionid)
+                return self.listgroup(group, username)
+
             elif (command == 'leave'):
                 group = j[1].strip()
                 sessionid = j[2].strip()
+                username = self.sessions[sessionid]['username']
                 print "{} {}".format(command, group)
-                return self.leave(group, sessionid)
+                return self.leave(group, username)
+
             elif (command == 'sendgroup'):
                 group = j[1].strip()
                 sessionid = j[2].strip()
+                username = self.sessions[sessionid]['username']
                 message = ""
                 for w in j[3:]:
                     message = "{} {}".format(message, w)
                 print "{} is sending message to group : {}".format(self.sessions[sessionid]['username'], group)
-                return self.sendgroup(group, sessionid, message)
+                return self.sendgroup(group, username, message)
+
             elif (command == 'inboxgroup'):
                 group = j[1].strip()
                 sessionid = j[2].strip()
+                username = self.sessions[sessionid]['username']
                 print "inboxgroup {}".format(group)
-                return self.inboxgroup(group, sessionid)
+                return self.inboxgroup(group, username)
             else:
                 return {'status': 'ERROR', 'message': '**Protocol Tidak Benar'}
         except IndexError:
@@ -165,7 +177,7 @@ class Chat:
 
         db_conn = sqlite3.connect('progjar.db')
         db = db_conn.cursor()
-        
+
         db.execute('SELECT * FROM user where user_name=?', (username_from,))
         sender = db.fetchone()
         user = {'nama': sender[1], 'password': sender[2], 'incoming': {}, 'outgoing': {}}
@@ -186,7 +198,8 @@ class Chat:
         inqueue_receiver = s_to['incoming']
 
         try:
-            db.execute('INSERT INTO chat (sender_id, receiver_id, message, type, received_time) values(?, ?, ?, ?, ?)', (username_from, username_dest, str(message), 'chat', datetime.datetime.now()))
+            db.execute('INSERT INTO chat (sender_id, receiver_id, message, type, received_time) values(?, ?, ?, ?, ?)',
+                       (username_from, username_dest, str(message), 'chat', datetime.datetime.now()))
             db_conn.commit()
         except KeyError:
             inqueue_receiver[username_from] = Queue()
@@ -215,14 +228,14 @@ class Chat:
 
         message = '.\\' + message.lstrip()
         message = os.path.basename(message)
-        message = message.replace(' \r\n',' ')
+        message = message.replace(' \r\n', ' ')
         filename = str(datetime.datetime.now())[:19]
-        filename = filename.replace(':','_')
-        filename = filename.replace(' ','_')
-        filename = filename.replace('-','_')
-        message = filename +'_'+message
+        filename = filename.replace(':', '_')
+        filename = filename.replace(' ', '_')
+        filename = filename.replace('-', '_')
+        message = filename + '_' + message
 
-        f = open(os.path.join(os.getcwd(),'upload',str(message)), 'wb')
+        f = open(os.path.join(os.getcwd(), 'upload', str(message)), 'wb')
         while True:
             bytes = client_file_socket.recv(1024)
             if not bytes:
@@ -253,7 +266,8 @@ class Chat:
         inqueue_receiver = s_to['incoming']
 
         try:
-            db.execute('INSERT INTO chat (sender_id, receiver_id, message, type, received_time) values(?, ?, ?, ?, ?)', (username_from, username_dest, str(message), 'file', datetime.datetime.now()))
+            db.execute('INSERT INTO chat (sender_id, receiver_id, message, type, received_time) values(?, ?, ?, ?, ?)',
+                       (username_from, username_dest, str(message), 'file', datetime.datetime.now()))
             db_conn.commit()
         except KeyError:
             inqueue_receiver[username_from] = Queue()
@@ -261,56 +275,128 @@ class Chat:
 
         return {'status': 'OK', 'message': 'File sent'}
 
-    def mkgr(self, group_name, sessionid):
-        if (group_name in self.groups):
+    def mkgr(self, group_name, username):
+        credentials = (group_name, username)
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute('SELECT * FROM groupchat where group_name=? AND admin_id=?', credentials)
+        cek = db.fetchone()
+        if cek != None:
             return {'status': 'ERROR', 'message': 'Group does exist'}
-        self.groups[group_name] = {'group_name': group_name, 'log': [], 'users': []}
-        creator = self.sessions[sessionid]['username']
-        self.groups[group_name]['users'].append(creator)
-        return {'status': 'OK', 'message': self.groups[group_name]}
+        else:
+            db.execute('INSERT INTO groupchat (group_name, admin_id) values(?, ?)', (group_name, username))
+            db_conn.commit()
+            db.execute('INSERT INTO user_group (group_id, user_id) values(?, ?)', (group_name, username))
+            db_conn.commit()
+            return {'status': 'OK'}
 
-    def join(self, group_name, sessionid):
-        if (group_name not in self.groups):
+    def join(self, group_name, username):
+        credentials = (group_name, username)
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute('SELECT * FROM user_group where group_id=? AND user_id=?', credentials)
+        cek = db.fetchone()
+        db.execute('SELECT * FROM groupchat where group_name=?', (group_name,))
+        cek2 = db.fetchone()
+        if cek2 != None:
+            if cek != None:
+                return {'status': 'ERROR', 'message': 'You have already in group'}
+            else:
+                db.execute('INSERT INTO user_group (group_id, user_id) values(?, ?)', (group_name, username))
+                db_conn.commit()
+                return {'status': 'OK'}
+        elif cek2 == None:
             return {'status': 'ERROR', 'message': 'Group not found'}
-        username = self.sessions[sessionid]['username']
-        if (username in self.groups[group_name]['users']):
-            return {'status': 'ERROR', 'message': 'You have already in group'}
-        self.groups[group_name]['users'].append(username)
-        return {'status': 'OK', 'message': 'Group joined successfully'}
 
-    def listgroup(self, group_name, sessionid):
-        if (group_name not in self.groups):
+    def listgroup(self, group_name, username):
+        credentials = (group_name, username)
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute('SELECT * FROM user_group where group_id=? AND user_id=?', credentials)
+        cek = db.fetchone()
+        db.execute('SELECT * FROM groupchat where group_name=?', (group_name,))
+        cek2 = db.fetchone()
+        if cek2 != None:
+            if cek != None:
+                db.execute("SELECT * FROM user_group where group_id = ?", (group_name,))
+                rows = db.fetchall()
+                msgs = {}
+                for row in rows:
+                    print row
+                    if row[1] in msgs:
+                        msgs[row[1]].append(row[0])
+                    else:
+                        msgs[row[1]] = []
+                        msgs[row[1]].append(row[0])
+                return {'status': 'OK', 'messages': msgs}
+            elif cek == None:
+                return {'status': 'ERROR', 'message': 'You are not group member'}
+        elif cek2 == None:
             return {'status': 'ERROR', 'message': 'Group not found'}
-        username = self.sessions[sessionid]['username']
-        if (username not in self.groups[group_name]['users']):
-            return {'status': 'ERROR', 'message': 'You are not group member'}
-        return {'status': 'OK', 'message': self.groups[group_name]['users']}
 
-    def leave(self, group_name, sessionid):
-        if (group_name not in self.groups):
+    def leave(self, group_name, username):
+        credentials = (group_name, username)
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute('SELECT * FROM user_group where group_id=? AND user_id=?', credentials)
+        cek = db.fetchone()
+        db.execute('SELECT * FROM groupchat where group_name=?', (group_name,))
+        cek2 = db.fetchone()
+        if cek2 != None:
+            if cek != None:
+                db.execute("DELETE FROM user_group where group_id=? AND user_id=?", credentials)
+                db_conn.commit()
+                return {'status': 'OK'}
+            elif cek == None:
+                return {'status': 'ERROR', 'message': 'You are not group member'}
+        elif cek2 == None:
             return {'status': 'ERROR', 'message': 'Group not found'}
-        username = self.sessions[sessionid]['username']
-        if username in self.groups[group_name]['users']:
-            self.groups[group_name]['users'].remove(username)
-            return {'status': 'OK', 'message': 'You left the [{}] group'.format(group_name)}
-        return {'status': 'ERROR', 'message': 'You are not group member'}
 
-    def sendgroup(self, group_name, sessionid, message):
-        if group_name not in self.groups:
+    def sendgroup(self, group_name, username, message):
+        credentials = (group_name, username)
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute('SELECT * FROM user_group where group_id=? AND user_id=?', credentials)
+        cek = db.fetchone()
+        db.execute('SELECT * FROM groupchat where group_name=?', (group_name,))
+        cek2 = db.fetchone()
+        if cek2 != None:
+            if cek != None:
+                db.execute(
+                    'INSERT INTO chat_group (sender_id, group_id, message, type, received_time) values(?, ?, ?, ?, ?)',
+                    (username, group_name, message, 'chatgroup', datetime.datetime.now()))
+                db_conn.commit()
+                return {'status': 'OK'}
+            elif cek == None:
+                return {'status': 'ERROR', 'message': 'You are not group member'}
+        elif cek2 == None:
             return {'status': 'ERROR', 'message': 'Group not found'}
-        username = self.sessions[sessionid]['username']
-        if username not in self.groups[group_name]['users']:
-            return {'status': 'ERROR', 'message': 'You are not group member'}
-        self.groups[group_name]['log'].append({'from': username, 'message': message})
-        return {'status': 'OK', 'message': 'Message sent'}
 
-    def inboxgroup(self, group_name, sessionid):
-        if group_name not in self.groups:
+    def inboxgroup(self, group_name, username):
+        credentials = (group_name, username)
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute('SELECT * FROM user_group where group_id=? AND user_id=?', credentials)
+        cek = db.fetchone()
+        db.execute('SELECT * FROM groupchat where group_name=?', (group_name,))
+        cek2 = db.fetchone()
+        if cek2 != None:
+            if cek != None:
+                db.execute("SELECT * FROM chat_group where group_id = ?", (group_name,))
+                rows = db.fetchall()
+                msgs = {}
+                for row in rows:
+                    print row
+                    if row[1] in msgs:
+                        msgs[row[1]].append(row[3])
+                    else:
+                        msgs[row[1]] = []
+                        msgs[row[1]].append(row[3])
+                return {'status': 'OK', 'messages': msgs}
+            elif cek == None:
+                return {'status': 'ERROR', 'message': 'You are not group member'}
+        elif cek2 == None:
             return {'status': 'ERROR', 'message': 'Group not found'}
-        username = self.sessions[sessionid]['username']
-        if username not in self.groups[group_name]['users']:
-            return {'status': 'ERROR', 'message': 'You are not group member'}
-        return {'status': 'OK', 'messages': self.groups[group_name]['log']}
 
 if __name__ == "__main__":
     j = Chat()
