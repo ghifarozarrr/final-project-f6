@@ -1,6 +1,9 @@
 import socket
 import os
 import json
+import base64
+import traceback
+import time
 
 TARGET_IP = "127.0.0.1"
 TARGET_PORT = 8889
@@ -17,7 +20,13 @@ class ChatClient:
         j=cmdline.split(" ")
         try:
             command=j[0].strip()
-            if (command=='auth'):
+            if (command=='auth_register'):
+                if self.tokenid != '':
+                    return 'Logout first to register'
+                username=j[1].strip()
+                password=j[2].strip()
+                return self.register(username,password)
+            elif (command=='auth'):
                 username=j[1].strip()
                 password=j[2].strip()
                 return self.login(username,password)
@@ -70,6 +79,14 @@ class ChatClient:
                         return json.loads(receivemsg)
         except:
             self.sock.close()
+
+    def register(self,username,password):
+        string="auth_register {} {} \r\n" . format(username,password)
+        result = self.sendstring(string)
+        if result['status']=='OK':
+            return "username {} registered, please log in" .format(username)
+        else:
+            return "Error, {}" . format(result['message'])
 
     def login(self,username,password):
         string="auth {} {} \r\n" . format(username,password)

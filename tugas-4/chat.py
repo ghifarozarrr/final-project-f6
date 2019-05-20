@@ -1,9 +1,12 @@
+import socket
 import sys
 import os
 import json
 import uuid
+import sqlite3
+import datetime
+import base64
 from Queue import *
-
 
 class Chat:
     def __init__(self):
@@ -22,7 +25,12 @@ class Chat:
         try:
             command = j[0].strip()
             print 'command is', command
-            if (command == 'auth'):
+            if (command == 'auth_register'):
+                username = j[1].strip()
+                password = j[2].strip()
+                print "auth_register {}".format(username)
+                return self.user_register(username, password)
+            elif (command == 'auth'):
                 username = j[1].strip()
                 password = j[2].strip()
                 print "auth {}".format(username)
@@ -82,6 +90,19 @@ class Chat:
                 return {'status': 'ERROR', 'message': '**Protocol Tidak Benar'}
         except IndexError:
             return {'status': 'ERROR', 'message': '--Protocol Tidak Benar'}
+
+    def user_register(self, username, password):
+        credentials = (username, password)
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute('SELECT * FROM user where user_name=? AND password=?', credentials)
+        auth = db.fetchone()
+        if auth != None:
+            message = 'Already an account with the provided username. Please use a different username.'
+        else:
+            db.execute('INSERT INTO user (user_name, password) values(?, ?)', (username, password))
+            db_conn.commit()
+            return {'status': 'OK'}
 
     def autentikasi_user(self, username, password):
         if (username not in self.users):
