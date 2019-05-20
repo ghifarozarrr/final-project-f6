@@ -79,6 +79,13 @@ class ChatClient:
                 group = j[1].strip()
                 return self.inboxgroup(group)
 
+            elif (command == 'sendgroup_file'):
+                group = j[1].strip()
+                message = ''
+                for w in j[2:]:
+                    message = '{} {}'.format(message, w)
+                return self.sendgroup_file(group, message)
+
             else:
                 return '*Command is incorrect'
         except IndexError:
@@ -252,6 +259,33 @@ class ChatClient:
             return "{}".format(json.dumps(result['messages']))
         else:
             return "Error, {}".format(result['message'])
+
+    def sendgroup_file(self, group_name, message):
+        if (self.tokenid == ""):
+            return "Error, please login first"
+
+        file_name = message.lstrip()
+        if os.path.exists(file_name):
+            string = "sendgroup_file {} {} {} \r\n".format(self.tokenid, group_name, file_name)
+            self.send_string_without_rcv(string)
+            time.sleep(1.1)
+            self.start_file_socket()
+            f = open(file_name, 'rb')
+            bytes = f.read(1024)
+            totalsend = len(bytes)
+            filesize = os.path.getsize(file_name)
+            while True:
+                self.file_socket.send(bytes)
+                bytes = f.read(1024)
+                print "{0:.2f}".format((totalsend / float(filesize)) * 100) + "% Done"
+                totalsend += len(bytes)
+                if not bytes:
+                    break
+            f.close()
+            self.file_socket.close()
+            return self.receive_msg_no_loop()
+        else:
+            return "Error, file not found"
 
 if __name__ == "__main__":
     cc = ChatClient()

@@ -107,6 +107,17 @@ class Chat:
                 username = self.sessions[sessionid]['username']
                 print "inboxgroup {}".format(group)
                 return self.inboxgroup(group, username)
+
+            elif (command == 'sendgroup_file'):
+                sessionid = j[1].strip()
+                group_name = j[2].strip()
+                message = ''
+                for w in j[3:]:
+                    message = "{} {}".format(message, w)
+                username = self.sessions[sessionid]['username']
+                print 'send file from {} to {}'.format(username, group_name)
+                return self.sendgroup_file(sessionid, username, group_name, message)
+
             else:
                 return {'status': 'ERROR', 'message': '**Protocol Tidak Benar'}
         except IndexError:
@@ -393,6 +404,48 @@ class Chat:
                         msgs[row[1]] = []
                         msgs[row[1]].append(row[3])
                 return {'status': 'OK', 'messages': msgs}
+            elif cek == None:
+                return {'status': 'ERROR', 'message': 'You are not group member'}
+        elif cek2 == None:
+            return {'status': 'ERROR', 'message': 'Group not found'}
+
+    def sendgroup_file(self, sessionid, username, group_name, message):
+        if (sessionid not in self.sessions):
+            return {'status': 'ERROR', 'message': 'Session not found'}
+
+        credentials = (group_name, username)
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute('SELECT * FROM user_group where group_id=? AND user_id=?', credentials)
+        cek = db.fetchone()
+        db.execute('SELECT * FROM groupchat where group_name=?', (group_name,))
+        cek2 = db.fetchone()
+        if cek2 != None:
+            if cek != None:
+                client_file_socket, client_data_address = self.start_file_socket()
+
+                message = '.\\' + message.lstrip()
+                message = os.path.basename(message)
+                message = message.replace(' \r\n', ' ')
+                filename = str(datetime.datetime.now())[:19]
+                filename = filename.replace(':', '_')
+                filename = filename.replace(' ', '_')
+                filename = filename.replace('-', '_')
+                message = filename + '_' + message
+
+                f = open(os.path.join(os.getcwd(), 'upload', str(message)), 'wb')
+                while True:
+                    bytes = client_file_socket.recv(1024)
+                    if not bytes:
+                        break
+                    f.write(bytes)
+                f.close()
+
+                db.execute(
+                    'INSERT INTO chat_group (sender_id, group_id, message, type, received_time) values(?, ?, ?, ?, ?)',
+                    (username, group_name, message, 'filegroup', datetime.datetime.now()))
+                db_conn.commit()
+                return {'status': 'OK', 'message': 'File sent'}
             elif cek == None:
                 return {'status': 'ERROR', 'message': 'You are not group member'}
         elif cek2 == None:
