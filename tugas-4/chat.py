@@ -517,8 +517,6 @@ class Chat:
         if cek2 != None:
             if cek != None:
                 file_name = file_name.lstrip()
-                db_conn = sqlite3.connect('progjar.db')
-                db = db_conn.cursor()
                 db.execute('SELECT * FROM chat_group where group_id=? and type = ? and message = ?', (group_name, 'filegroup', file_name,))
                 files = db.fetchall()
 

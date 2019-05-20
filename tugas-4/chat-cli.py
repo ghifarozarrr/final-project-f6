@@ -3,6 +3,7 @@ import os
 import json
 import base64
 import traceback
+import sqlite3
 import time
 import datetime
 
@@ -302,28 +303,35 @@ class ChatClient:
         if (self.tokenid == ""):
             return "Error, please login first"
 
-        file_name = message.lstrip()
-        if os.path.exists(file_name):
-            string = "sendgroup_file {} {} {} \r\n".format(self.tokenid, group_name, file_name)
-            self.send_string_without_rcv(string)
-            time.sleep(1.1)
-            self.start_file_socket()
-            f = open(file_name, 'rb')
-            bytes = f.read(1024)
-            totalsend = len(bytes)
-            filesize = os.path.getsize(file_name)
-            while True:
-                self.file_socket.send(bytes)
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute('SELECT * FROM groupchat where group_name=?', (group_name,))
+        cek2 = db.fetchone()
+        if cek2 != None:
+            file_name = message.lstrip()
+            if os.path.exists(file_name):
+                string = "sendgroup_file {} {} {} \r\n".format(self.tokenid, group_name, file_name)
+                self.send_string_without_rcv(string)
+                time.sleep(1.1)
+                self.start_file_socket()
+                f = open(file_name, 'rb')
                 bytes = f.read(1024)
-                print "{0:.2f}".format((totalsend / float(filesize)) * 100) + "% Done"
-                totalsend += len(bytes)
-                if not bytes:
-                    break
-            f.close()
-            self.file_socket.close()
-            return self.receive_msg_no_loop()
+                totalsend = len(bytes)
+                filesize = os.path.getsize(file_name)
+                while True:
+                    self.file_socket.send(bytes)
+                    bytes = f.read(1024)
+                    print "{0:.2f}".format((totalsend / float(filesize)) * 100) + "% Done"
+                    totalsend += len(bytes)
+                    if not bytes:
+                        break
+                f.close()
+                self.file_socket.close()
+                return self.receive_msg_no_loop()
+            else:
+                return "Error, file not found"
         else:
-            return "Error, file not found"
+            return "Error, group not found"
 
     def downloadgroup_file(self, group_name, message):
         if (self.tokenid == ''):
@@ -333,23 +341,30 @@ class ChatClient:
         if not os.path.exists(os.path.join(os.getcwd(), 'download', self.tokenid)):
             folder = os.makedirs(os.path.join(os.getcwd(), 'download', self.tokenid))
 
-        lokasi = "upload" + "/" + file_name
-        if os.path.isfile(lokasi):
-            string = "downloadgroup_file {} {} {} \r\n".format(self.tokenid, group_name, file_name)
-            self.send_string_without_rcv(string)
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute('SELECT * FROM groupchat where group_name=?', (group_name,))
+        cek2 = db.fetchone()
+        if cek2 != None:
+            lokasi = "upload" + "/" + file_name
+            if os.path.isfile(lokasi):
+                string = "downloadgroup_file {} {} {} \r\n".format(self.tokenid, group_name, file_name)
+                self.send_string_without_rcv(string)
 
-            self.start_file_socket()
-            f = open(os.path.join(os.getcwd(), 'download', self.tokenid, file_name), 'wb')
-            while True:
-                bytes = self.file_socket.recv(1024)
-                if not bytes:
-                    break
-                f.write(bytes)
-            f.close()
-            self.file_socket.close()
-            return self.receive_msg_no_loop()
+                self.start_file_socket()
+                f = open(os.path.join(os.getcwd(), 'download', self.tokenid, file_name), 'wb')
+                while True:
+                    bytes = self.file_socket.recv(1024)
+                    if not bytes:
+                        break
+                    f.write(bytes)
+                f.close()
+                self.file_socket.close()
+                return self.receive_msg_no_loop()
+            else:
+                return "Error, file not found"
         else:
-            return "Error, file not found"
+            return "Error, group not found"
 
 if __name__ == "__main__":
     cc = ChatClient()
