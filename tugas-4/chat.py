@@ -45,6 +45,7 @@ class Chat:
                 usernamefrom = self.sessions[sessionid]['username']
                 print "send message from {} to {}".format(usernamefrom, usernameto)
                 return self.send_message(sessionid, usernamefrom, usernameto, message)
+
             elif (command == 'inbox'):
                 sessionid = j[1].strip()
                 username = self.sessions[sessionid]['username']
@@ -128,6 +129,25 @@ class Chat:
         if (username not in self.users):
             return False
         return self.users[username]
+
+    def get_inbox(self, username):
+        s_fr = self.get_user(username)
+        incoming = s_fr['incoming']
+
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute("SELECT * FROM chat where receiver_id = ?", (username,))
+        rows = db.fetchall()
+
+        msgs = {}
+        for row in rows:
+            print row
+            if row[1] in msgs:
+                msgs[row[1]].append(row[3])
+            else:
+                msgs[row[1]] = []
+                msgs[row[1]].append(row[3])
+        return {'status': 'OK', 'messages': msgs}
 
     def send_message(self, sessionid, username_from, username_dest, message):
         if (sessionid not in self.sessions):

@@ -35,14 +35,16 @@ class ChatClient:
             elif (command=='auth_logout'):
                 return self.logout(self.tokenid)
 
+            elif (command=='inbox'):
+                return self.inbox()
+
             elif (command=='send'):
                 usernameto = j[1].strip()
                 message=""
                 for w in j[2:]:
                     message="{} {}" . format(message,w)
                 return self.sendmessage(usernameto,message)
-            elif (command=='inbox'):
-                return self.inbox()
+            
             
             elif (command == 'mkgr'):
                 group = j[1].strip()
@@ -106,6 +108,16 @@ class ChatClient:
         if result['status'] == 'OK':
             self.tokenid = ""
             return "{}" . format(result['message'])
+        else:
+            return "Error, {}" . format(result['message'])
+
+    def inbox(self):
+        if (self.tokenid==""):
+            return "Error, not authorized"
+        string="inbox {} \r\n" . format(self.tokenid)
+        result = self.sendstring(string)
+        if result['status']=='OK':
+            return "{}" . format(json.dumps(result['messages']))
         else:
             return "Error, {}" . format(result['message'])
 
@@ -177,15 +189,6 @@ class ChatClient:
         if result['status'] == 'OK':
             return "{}".format(json.dumps(result['messages']))
 
-    def inbox(self):
-        if (self.tokenid==""):
-            return "Error, not authorized"
-        string="inbox {} \r\n" . format(self.tokenid)
-        result = self.sendstring(string)
-        if result['status']=='OK':
-            return "{}" . format(json.dumps(result['messages']))
-        else:
-            return "Error, {}" . format(result['message'])
 
 if __name__=="__main__":
     cc = ChatClient()
