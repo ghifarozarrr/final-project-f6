@@ -125,6 +125,14 @@ class Chat:
                 print 'send file from {} to {}'.format(username, group_name)
                 return self.sendgroup_file(sessionid, username, group_name, message)
 
+            elif (command == 'downloadgroup_file'):
+                sessionid = j[1].strip()
+                group_name = j[2].strip()
+                message = j[3].strip()
+                username = self.sessions[sessionid]['username']
+                print 'send file from {} to {}'.format(username, group_name)
+                return self.downloadgroup_file(sessionid, username, group_name, message)
+
             else:
                 return {'status': 'ERROR', 'message': '**Protocol Tidak Benar'}
         except IndexError:
@@ -285,7 +293,8 @@ class Chat:
         inqueue_receiver = s_to['incoming']
 
         try:
-            db.execute('INSERT INTO chat (sender_id, receiver_id, message, type, received_time) values(?, ?, ?, ?, ?)', (username_from, username_dest, json.dumps(message), 'file', datetime.datetime.now()))
+            db.execute('INSERT INTO chat (sender_id, receiver_id, message, type, received_time) values(?, ?, ?, ?, ?)',
+                       (username_from, username_dest, json.dumps(message), 'file', datetime.datetime.now()))
             db_conn.commit()
         except KeyError:
             inqueue_receiver[username_from] = Queue()
@@ -300,7 +309,7 @@ class Chat:
         file_name = file_name.lstrip()
         db_conn = sqlite3.connect('progjar.db')
         db = db_conn.cursor()
-        db.execute('SELECT * FROM chat where receiver_id=? and type = ?', (self.username, 'file', ))
+        db.execute('SELECT * FROM chat where receiver_id=? and type = ?', (self.username, 'file',))
         files = db.fetchall()
 
         file_to_download = ''
@@ -313,21 +322,20 @@ class Chat:
 
         if file_to_download != '':
             client_data_socket, client_data_address = self.start_file_socket()
-            f = open(os.path.join(os.getcwd(),'upload',str(file_to_download)), 'rb')
+            f = open(os.path.join(os.getcwd(), 'upload', str(file_to_download)), 'rb')
             bytes = f.read(1024)
             totalsend = len(bytes)
             filesize = os.path.getsize('upload/' + file_to_download)
             while True:
                 client_data_socket.send(bytes)
                 bytes = f.read(1024)
-                print "{0:.2f}".format((totalsend/float(filesize))*100)+ "% Done"
+                print "{0:.2f}".format((totalsend / float(filesize)) * 100) + "% Done"
                 totalsend += len(bytes)
                 if not bytes:
                     break
             f.close()
             self.data_socket.close()
             return {'status': 'OK', 'message': 'File downloaded'}
-        
         return {'status': 'ERROR', 'message': 'File not found'}
 
     def mkgr(self, group_name, username):
@@ -490,6 +498,46 @@ class Chat:
                     (username, group_name, message, 'filegroup', datetime.datetime.now()))
                 db_conn.commit()
                 return {'status': 'OK', 'message': 'File sent'}
+            elif cek == None:
+                return {'status': 'ERROR', 'message': 'You are not group member'}
+        elif cek2 == None:
+            return {'status': 'ERROR', 'message': 'Group not found'}
+
+    def downloadgroup_file(self, sessionid, username, group_name, file_name):
+        if (sessionid not in self.sessions):
+            return {'status': 'ERROR', 'message': 'Session not found'}
+
+        credentials = (group_name, username)
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute('SELECT * FROM user_group where group_id=? AND user_id=?', credentials)
+        cek = db.fetchone()
+        db.execute('SELECT * FROM groupchat where group_name=?', (group_name,))
+        cek2 = db.fetchone()
+        if cek2 != None:
+            if cek != None:
+                file_name = file_name.lstrip()
+                db_conn = sqlite3.connect('progjar.db')
+                db = db_conn.cursor()
+                db.execute('SELECT * FROM chat_group where group_id=? and type = ? and message = ?', (group_name, 'filegroup', file_name,))
+                files = db.fetchall()
+
+                if files != None:
+                    client_data_socket, client_data_address = self.start_file_socket()
+                    f = open(os.path.join(os.getcwd(), 'upload', str(file_name)), 'rb')
+                    bytes = f.read(1024)
+                    totalsend = len(bytes)
+                    filesize = os.path.getsize('upload/' + file_name)
+                    while True:
+                        client_data_socket.send(bytes)
+                        bytes = f.read(1024)
+                        print "{0:.2f}".format((totalsend / float(filesize)) * 100) + "% Done"
+                        totalsend += len(bytes)
+                        if not bytes:
+                            break
+                    f.close()
+                    self.data_socket.close()
+                    return {'status': 'OK', 'message': 'File downloaded'}
             elif cek == None:
                 return {'status': 'ERROR', 'message': 'You are not group member'}
         elif cek2 == None:

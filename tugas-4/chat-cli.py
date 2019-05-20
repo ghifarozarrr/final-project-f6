@@ -16,10 +16,9 @@ class ChatClient:
         self.server_address = (TARGET_IP, TARGET_PORT)
         self.sock.connect(self.server_address)
         self.tokenid = ''
-        
 
     def proses(self, cmdline):
-        j=cmdline.split(' ')
+        j = cmdline.split(' ')
         try:
             command = j[0].strip()
             if (command == 'auth_register'):
@@ -54,7 +53,7 @@ class ChatClient:
                     message = '{} {}'.format(message, w)
                 return self.sendfile(usernameto, message)
 
-            elif (command=='download_file'):
+            elif (command == 'download_file'):
                 filename = j[1].strip()
                 return self.download_file(filename)
 
@@ -91,6 +90,11 @@ class ChatClient:
                 for w in j[2:]:
                     message = '{} {}'.format(message, w)
                 return self.sendgroup_file(group, message)
+
+            elif (command == 'downloadgroup_file'):
+                group = j[1].strip()
+                message = j[2].strip()
+                return self.downloadgroup_file(group, message)
 
             else:
                 return '*Command is incorrect'
@@ -206,27 +210,33 @@ class ChatClient:
         else:
             return "Error, file not found"
 
-    def download_file(self, file_name):
+    def download_file(self, message):
         if (self.tokenid == ''):
             return "Error, please login first"
 
-        file_name = file_name.lstrip()
+        file_name = message.lstrip()
 
-        if not os.path.exists(os.path.join(os.getcwd(),'download',self.tokenid)):
-            folder = os.makedirs(os.path.join(os.getcwd(),'download',self.tokenid))
+        if not os.path.exists(os.path.join(os.getcwd(), 'download', self.tokenid)):
+            folder = os.makedirs(os.path.join(os.getcwd(), 'download', self.tokenid))
 
-        string = "download_file {} {} \r\n".format(self.tokenid, file_name)
-        self.send_string_without_rcv(string)     
-        time.sleep(2.5)
-        self.start_file_socket()
-        f = open(os.path.join(os.getcwd(),'download',self.tokenid,file_name), 'wb')
-        while True:
-            bytes = self.file_socket.recv(1024)
-            if not bytes:
-                break
-            f.write(bytes)
-        f.close()
-        self.file_socket.close()
+        lokasi = "upload" + "/" + file_name
+        if os.path.isfile(lokasi):
+            string = "download_file {} {} \r\n".format(self.tokenid, file_name)
+            self.send_string_without_rcv(string)
+
+
+            self.start_file_socket()
+            f = open(os.path.join(os.getcwd(), 'download', self.tokenid, file_name), 'wb')
+            while True:
+                bytes = self.file_socket.recv(1024)
+                if not bytes:
+                    break
+                f.write(bytes)
+            f.close()
+            self.file_socket.close()
+            return self.receive_msg_no_loop()
+        else:
+            return "Error, file not found"
 
     def mkgr(self, group_name):
         if (self.tokenid == ""):
@@ -309,6 +319,32 @@ class ChatClient:
                 totalsend += len(bytes)
                 if not bytes:
                     break
+            f.close()
+            self.file_socket.close()
+            return self.receive_msg_no_loop()
+        else:
+            return "Error, file not found"
+
+    def downloadgroup_file(self, group_name, message):
+        if (self.tokenid == ''):
+            return "Error, please login first"
+
+        file_name = message.lstrip()
+        if not os.path.exists(os.path.join(os.getcwd(), 'download', self.tokenid)):
+            folder = os.makedirs(os.path.join(os.getcwd(), 'download', self.tokenid))
+
+        lokasi = "upload" + "/" + file_name
+        if os.path.isfile(lokasi):
+            string = "downloadgroup_file {} {} {} \r\n".format(self.tokenid, group_name, file_name)
+            self.send_string_without_rcv(string)
+
+            self.start_file_socket()
+            f = open(os.path.join(os.getcwd(), 'download', self.tokenid, file_name), 'wb')
+            while True:
+                bytes = self.file_socket.recv(1024)
+                if not bytes:
+                    break
+                f.write(bytes)
             f.close()
             self.file_socket.close()
             return self.receive_msg_no_loop()
