@@ -66,7 +66,6 @@ class Server(asyncore.dispatcher):
 			handler.backend = backend
 
 
-
 def main():
 	svr = Server()
 	asyncore.loop()
