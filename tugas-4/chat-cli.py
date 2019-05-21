@@ -95,14 +95,7 @@ class ChatClient:
 
             elif (command == 'ls_member'):
                 group = j[1].strip()
-                data = self.ls_member(group)
-                data = eval(data)
-                msg = 'Member group "'
-                for x in data:
-                    msg = msg + x + '" :\n'
-                    for y in data[x]:
-                        msg = msg + "- " + y + "\n"
-                return msg
+                return self.ls_member(group)
 
             elif (command == 'leave'):
                 group = j[1].strip()
@@ -117,12 +110,7 @@ class ChatClient:
 
             elif (command == 'inboxgroup'):
                 group = j[1].strip()
-                data = self.inboxgroup(group)
-                data = eval(data)
-                msg = ""
-                for x in data:
-                    msg = msg + "\n" + x[0] + " => " + x[1].lstrip()
-                return msg
+                return self.inboxgroup(group)
 
             elif (command == 'sendgroup_file'):
                 group = j[1].strip()
@@ -205,7 +193,7 @@ class ChatClient:
 
     def ls(self):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "ls {} \r\n".format(self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -215,7 +203,7 @@ class ChatClient:
 
     def inbox(self):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "inbox {} \r\n".format(self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -225,7 +213,7 @@ class ChatClient:
 
     def sendmessage(self, usernameto, message):
         if (self.tokenid == ''):
-            return "Error, not authorized"
+            return "Error, please login firstd"
         string = "send {} {} {} \r\n".format(self.tokenid, usernameto, message)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -299,7 +287,7 @@ class ChatClient:
 
     def mkgr(self, group_name):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "mkgr {} {} \r\n".format(group_name, self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -309,7 +297,7 @@ class ChatClient:
 
     def join(self, group_name):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "join {} {} \r\n".format(group_name, self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -319,27 +307,25 @@ class ChatClient:
 
     def ls_group(self):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "ls_group {} \r\n".format(self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
             return json.dumps(result['messages'])
-        else:
-            return "No more group"
 
     def ls_member(self, group_name):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "ls_member {} {} \r\n".format(group_name, self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
-            return json.dumps(result['messages'])
+            return "Member group {}".format(json.dumps(result['messages']))
         else:
             return "Error, {}".format(result['message'])
 
     def leave(self, group_name):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "leave {} {} \r\n".format(group_name, self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -349,7 +335,7 @@ class ChatClient:
 
     def sendgroup(self, group_name, message):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "sendgroup {} {} {} \r\n".format(group_name, self.tokenid, message)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -359,11 +345,11 @@ class ChatClient:
 
     def inboxgroup(self, group_name):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "inboxgroup {} {} \r\n".format(group_name, self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
-            return json.dumps(result['messages'])
+            return "{}".format(json.dumps(result['messages']))
         else:
             return "Error, {}".format(result['message'])
 
