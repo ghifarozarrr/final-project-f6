@@ -38,6 +38,9 @@ class ChatClient:
             elif (command == 'auth_logout'):
                 return self.logout(self.tokenid)
 
+            elif(command == 'ls'):
+                return self.ls()
+
             elif (command == 'inbox'):
                 return self.inbox()
 
@@ -66,6 +69,9 @@ class ChatClient:
             elif (command == 'join'):
                 group = j[1].strip()
                 return self.join(group)
+
+            elif (command == 'ls_group'):
+                return self.ls_group()
 
             elif (command == 'listgroup'):
                 group = j[1].strip()
@@ -164,6 +170,16 @@ class ChatClient:
             return "{}".format(result['message'])
         else:
             return "Error, {}".format(result['message'])
+
+    def ls(self):
+        if (self.tokenid == ""):
+            return "Error, not authorized"
+        string = "ls {} \r\n".format(self.tokenid)
+        result = self.sendstring(string)
+        if result['status'] == 'OK':
+            return "List user: {}".format(json.dumps(result['messages']))
+        else:
+            return "No more user"
 
     def inbox(self):
         if (self.tokenid == ""):
@@ -267,6 +283,16 @@ class ChatClient:
             return "You're successfully join {}".format(group_name)
         else:
             return "Error, {}".format(result['message'])
+
+    def ls_group(self):
+        if (self.tokenid == ""):
+            return "Error, not authorized"
+        string = "ls_group {} \r\n".format(self.tokenid)
+        result = self.sendstring(string)
+        if result['status'] == 'OK':
+            return "List group: {}".format(json.dumps(result['messages']))
+        else:
+            return "No more group"
 
     def listgroup(self, group_name):
         if (self.tokenid == ""):

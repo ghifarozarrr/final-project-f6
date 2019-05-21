@@ -64,6 +64,12 @@ class Chat:
                 print 'download file command'
                 return self.download_file(sessionid, file_name)
 
+            elif (command == 'ls'):
+                sessionid = j[1].strip()
+                username = self.sessions[sessionid]['username']
+                print "list user"
+                return self.ls(username)
+
             elif (command == 'inbox'):
                 sessionid = j[1].strip()
                 username = self.sessions[sessionid]['username']
@@ -83,6 +89,10 @@ class Chat:
                 username = self.sessions[sessionid]['username']
                 print "{} is joining {}...".format(self.sessions[sessionid]['username'], group)
                 return self.join(group, username)
+
+            elif (command == 'ls_group'):
+                print "list group"
+                return self.ls_group()
 
             elif (command == 'listgroup'):
                 group = j[1].strip()
@@ -178,6 +188,14 @@ class Chat:
         if (username not in self.users):
             return False
         return self.users[username]
+
+    def ls(self, username):
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute("SELECT user_name FROM user where user_name != ?", (username,))
+        rows = db.fetchall()
+
+        return {'status': 'OK', 'messages': rows}
 
     def get_inbox(self, username):
         s_fr = self.get_user(username)
@@ -370,6 +388,14 @@ class Chat:
                 return {'status': 'OK'}
         elif cek2 == None:
             return {'status': 'ERROR', 'message': 'Group not found'}
+
+    def ls_group(self):
+        db_conn = sqlite3.connect('progjar.db')
+        db = db_conn.cursor()
+        db.execute("SELECT group_name FROM groupchat")
+        rows = db.fetchall()
+
+        return {'status': 'OK', 'messages': rows}
 
     def listgroup(self, group_name, username):
         credentials = (group_name, username)
