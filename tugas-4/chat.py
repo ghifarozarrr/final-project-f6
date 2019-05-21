@@ -94,12 +94,12 @@ class Chat:
                 print "list group"
                 return self.ls_group()
 
-            elif (command == 'listgroup'):
+            elif (command == 'ls_member'):
                 group = j[1].strip()
                 sessionid = j[2].strip()
                 username = self.sessions[sessionid]['username']
                 print "{} {}".format(command, group)
-                return self.listgroup(group, username)
+                return self.ls_member(group, username)
 
             elif (command == 'leave'):
                 group = j[1].strip()
@@ -401,7 +401,7 @@ class Chat:
 
         return {'status': 'OK', 'messages': rows}
 
-    def listgroup(self, group_name, username):
+    def ls_member(self, group_name, username):
         credentials = (group_name, username)
         db_conn = sqlite3.connect('progjar.db')
         db = db_conn.cursor()
@@ -475,17 +475,9 @@ class Chat:
         cek2 = db.fetchone()
         if cek2 != None:
             if cek != None:
-                db.execute("SELECT * FROM chat_group where group_id = ?", (group_name,))
+                db.execute("SELECT sender_id, message FROM chat_group where group_id = ?", (group_name,))
                 rows = db.fetchall()
-                msgs = {}
-                for row in rows:
-                    print row
-                    if row[1] in msgs:
-                        msgs[row[1]].append(row[3])
-                    else:
-                        msgs[row[1]] = []
-                        msgs[row[1]].append(row[3])
-                return {'status': 'OK', 'messages': msgs}
+                return {'status': 'OK', 'messages': rows}
             elif cek == None:
                 return {'status': 'ERROR', 'message': 'You are not group member'}
         elif cek2 == None:

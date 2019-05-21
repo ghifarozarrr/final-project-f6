@@ -73,9 +73,9 @@ class ChatClient:
             elif (command == 'ls_group'):
                 return self.ls_group()
 
-            elif (command == 'listgroup'):
+            elif (command == 'ls_member'):
                 group = j[1].strip()
-                return self.listgroup(group)
+                return self.ls_member(group)
 
             elif (command == 'leave'):
                 group = j[1].strip()
@@ -295,10 +295,10 @@ class ChatClient:
         else:
             return "No more group"
 
-    def listgroup(self, group_name):
+    def ls_member(self, group_name):
         if (self.tokenid == ""):
             return "Error, not authorized"
-        string = "listgroup {} {} \r\n".format(group_name, self.tokenid)
+        string = "ls_member {} {} \r\n".format(group_name, self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
             return "Member group {}".format(json.dumps(result['messages']))
