@@ -404,7 +404,7 @@ class ChatClient:
             if os.path.isfile(lokasi):
                 string = "downloadgroup_file {} {} {} \r\n".format(self.tokenid, group_name, file_name)
                 self.send_string_without_rcv(string)
-
+                time.sleep(1.1)
                 self.start_file_socket()
                 f = open(os.path.join(os.getcwd(), 'downloadgroup', self.temp, file_name), 'wb')
                 while True:

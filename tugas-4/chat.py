@@ -538,7 +538,7 @@ class Chat:
         cek2 = db.fetchone()
         if cek2 != None:
             if cek != None:
-                file_name = file_name.lstrip()
+                file_name = file_name.rstrip()
                 db.execute('SELECT * FROM chat_group where group_id=? and type = ? and message = ?', (group_name, 'filegroup', file_name,))
                 files = db.fetchall()
 
