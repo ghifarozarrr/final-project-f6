@@ -84,7 +84,14 @@ class ChatClient:
                 return self.join(group)
 
             elif (command == 'ls_group'):
-                return self.ls_group()
+                data = self.ls_group()
+                data = eval(data)
+                msg = "List group:\n"
+                for x in data:
+                    y = x[0]
+                    msg = msg + "- " + y + "\n"
+                return msg
+
 
             elif (command == 'ls_member'):
                 group = j[1].strip()
@@ -304,7 +311,7 @@ class ChatClient:
         string = "ls_group {} \r\n".format(self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
-            return "List group: {}".format(json.dumps(result['messages']))
+            return json.dumps(result['messages'])
         else:
             return "No more group"
 
