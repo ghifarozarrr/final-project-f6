@@ -12,12 +12,18 @@ Mata kuliah Pemrograman Jaringan Kelas F
 
 ### Auth
 - ##### Registrasi user
+    User dapat membuat akun baru dengan memasukkan username serta password. Jika username yang dimasukkan sudah ada, user akan diminta untuk memasukkan username yang lain. Setelah berhasil membuat akun, user akan diminta untuk login menggunakan username dan passwordnya.
+    
     ``auth_register [username] [password]``
 
 - ##### Login user
+    User dapat login ke akunnya dengan memasukkan username dan passwordnya.
+    
     ``auth_login [username] [password]``
 
 - ##### Logout user
+    User yang sudah login, dapat logout.
+    
     ``auth_logout``
 
 - ##### Melihat list user lain
@@ -26,15 +32,21 @@ Mata kuliah Pemrograman Jaringan Kelas F
 ### Personal Chatting
 
 - ##### Mengirim pesan antar user
-    ``send [username] [message]``
+    User dapat mengirim pesan kepada user lainnya dengan memasukkan username tujuan dan pesan yang ingin dikirim.
+    ``send [recceiver username] [message]``
 
-- ##### Mengecek pesan-pesan masuk dari user lain
+- ##### Melihat pesan-pesan masuk dari user lain
+    User dapat melihat pesan-pesan yang dikirimkan oleh user lain.
+    
     ``inbox``
 
 - ##### Mengirim file antar user
+    User dapat mengirim pesan berupa file kepada user lainnya dengan memasukkan username tujuan dan nama file yang ingin dikirim. File yang dikirim akan disimpan pada folder upload yang berada di sisi server dengan prefix nama file timestamp file tersebut dikirim.
+    
     ``send_file [receiver username] [file name]``
 
 - ##### Mendownload file dari user lain
+    User dapat mendownload file yang dikirimkan oleh user lain. File yang didownload user adalah file yang sebelumnya sudah diupload pada folder upload. File yang didownload user akan disimpan pada folder download/username.
     ``download_file [file name]``
 
 ### Group Messaging
@@ -108,6 +120,8 @@ Asynchronous
 |   20000  |      5      |       0.713       |     14.263     |          446.43          |     1402.27    |
 |   20000  |      10     |       0.754       |     15.071     |          422.47          |     1327.03    |
 
+Berdasarkan hasil pengujian di atas, didapatkan bahwa semakin banyak request, maka semakin lama waktu yang dibutuhkan untuk melayani setiap request. Namun hasil asynchronous relatif lebih cepat dibandingkan synchronous.
+
 Synchronous Load Balancer
 
 | Requests | Concurrency | Time/Request (ms) | Total Time (s) | Transfer Rate (Kbytes/s) | Request/Second |
@@ -147,3 +161,5 @@ Asynchronous Load Balancer
 |   20000  |      1      |       0.955       |     19.095     |           0.00           |     1047.37    |
 |   20000  |      5      |       0.963       |     19.268     |           0.00           |     1038.01    |
 |   20000  |      10     |       0.932       |     18.644     |           0.00           |     1072.72    |
+
+Berdasarkan hasil pengujian di atas, didapatkan bahwa load balancer terbukti dapat meningkatkan kemampuan sistem dalam melayani lebih banyak request dengan lebih cepat.
