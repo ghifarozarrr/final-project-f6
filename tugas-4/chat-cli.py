@@ -95,7 +95,14 @@ class ChatClient:
 
             elif (command == 'ls_member'):
                 group = j[1].strip()
-                return self.ls_member(group)
+                data = self.ls_member(group)
+                data = eval(data)
+                msg = 'Member group "'
+                for x in data:
+                    msg = msg + x + '" :\n'
+                    for y in data[x]:
+                        msg = msg + "- " + y + "\n"
+                return msg
 
             elif (command == 'leave'):
                 group = j[1].strip()
@@ -321,7 +328,7 @@ class ChatClient:
         string = "ls_member {} {} \r\n".format(group_name, self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
-            return "Member group {}".format(json.dumps(result['messages']))
+            return json.dumps(result['messages'])
         else:
             return "Error, {}".format(result['message'])
 
