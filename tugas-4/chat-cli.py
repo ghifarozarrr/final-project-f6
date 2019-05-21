@@ -248,9 +248,10 @@ class ChatClient:
 
         lokasi = "upload" + "/" + file_name
         if os.path.isfile(lokasi):
+            print 'its a file!'
             string = "download_file {} {} \r\n".format(self.tokenid, file_name)
             self.send_string_without_rcv(string)
-
+            time.sleep(1.1)
             self.start_file_socket()
             f = open(os.path.join(os.getcwd(), 'download', self.temp, file_name), 'wb')
             while True:

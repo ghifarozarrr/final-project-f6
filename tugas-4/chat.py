@@ -155,7 +155,7 @@ class Chat:
         db.execute('SELECT * FROM user where user_name=? AND password=?', credentials)
         auth = db.fetchone()
         if auth != None:
-            message = 'Already an account with the provided username. Please use a different username.'
+            return {'status': 'ERROR', 'message': 'Already an account with the provided username. Please use a different username.'}
         else:
             db.execute('INSERT INTO user (user_name, password) values(?, ?)', (username, password))
             db_conn.commit()
@@ -325,6 +325,7 @@ class Chat:
             return {'status': 'ERROR', 'message': 'Session not found'}
 
         file_name = file_name.lstrip()
+        file_name = file_name.rstrip()
         db_conn = sqlite3.connect('progjar.db')
         db = db_conn.cursor()
         db.execute('SELECT * FROM chat where receiver_id=? and type = ?', (self.username, 'file',))
@@ -334,8 +335,11 @@ class Chat:
 
         for file in files:
             json_msg = json.loads(file[3])
-            if (file_name == str(json_msg['msg'].rstrip())):
+            json_msg['msg'] = json_msg['msg'].rstrip()
+            json_msg['msg'] = json_msg['msg'].lstrip()
+            if (file_name == str(json_msg['msg'])):
                 file_to_download = file_name
+                print 'file name is same!'
                 break
 
         if file_to_download != '':
