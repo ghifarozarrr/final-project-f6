@@ -8,7 +8,7 @@ Mata kuliah Pemrograman Jaringan Kelas F
 * **Nuzha Musyafira** - 051116400000014
 * **Ghifaroza Rahmadiana** - 051116400000057
 
-### Protocol yang sudah dibuat
+## Spesifikasi Protokol
 
 register user
 
@@ -40,7 +40,7 @@ mendownload file dari user lain
 download_file [file name]
 ```
 
-mengecek pesan
+mengecek pesan dari user
 
 ```
 inbox
@@ -58,14 +58,44 @@ bergabung di grup
 join [groupname]
 ```
 
+melihat daftar user yang terdaftar pada grup yang sama
+
+```
+listgroup [groupname]
+```
+
+keluar dari grup
+
+```
+leave [groupname]
+```
+
+mengirim pesan ke grup
+
+```
+sendgroup [groupname] [message]
+```
+
+mengecek pesan dari grup
+
+```
+inboxgroup [groupname]
+```
+
+mengirim file ke grup
+
+```
+sendgroup_file [groupname] [file name]
+```
+
+mendownload file dari grup
+
+```
+downloadgroup_file [groupname] [file name]
+```
+
 keluar chat
 
 ```
 auth_logout
 ```
-
-## Protocol yang akan dibuat
-
-* Mengirim dan menerima pesan grup
-* Mengirim dan menerima file pada grup
-* Mengirim dan menerima file antar user
