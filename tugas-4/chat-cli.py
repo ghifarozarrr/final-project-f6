@@ -10,13 +10,13 @@ import datetime
 TARGET_IP = '127.0.0.1'
 TARGET_PORT = 8889
 
-
 class ChatClient:
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_address = (TARGET_IP, TARGET_PORT)
         self.sock.connect(self.server_address)
         self.tokenid = ''
+        self.temp = ''
 
     def proses(self, cmdline):
         j = cmdline.split(' ')
@@ -32,6 +32,7 @@ class ChatClient:
             elif (command == 'auth_login'):
                 username = j[1].strip()
                 password = j[2].strip()
+                self.temp=j[1].strip()
                 return self.login(username, password)
 
             elif (command == 'auth_logout'):
@@ -226,17 +227,16 @@ class ChatClient:
 
         file_name = message.lstrip()
 
-        if not os.path.exists(os.path.join(os.getcwd(), 'download', self.tokenid)):
-            folder = os.makedirs(os.path.join(os.getcwd(), 'download', self.tokenid))
+        if not os.path.exists(os.path.join(os.getcwd(), 'download', self.temp)):
+            folder = os.makedirs(os.path.join(os.getcwd(), 'download', self.temp))
 
         lokasi = "upload" + "/" + file_name
         if os.path.isfile(lokasi):
             string = "download_file {} {} \r\n".format(self.tokenid, file_name)
             self.send_string_without_rcv(string)
 
-
             self.start_file_socket()
-            f = open(os.path.join(os.getcwd(), 'download', self.tokenid, file_name), 'wb')
+            f = open(os.path.join(os.getcwd(), 'download', self.temp, file_name), 'wb')
             while True:
                 bytes = self.file_socket.recv(1024)
                 if not bytes:
@@ -347,8 +347,8 @@ class ChatClient:
             return "Error, please login first"
 
         file_name = message.lstrip()
-        if not os.path.exists(os.path.join(os.getcwd(), 'download', self.tokenid)):
-            folder = os.makedirs(os.path.join(os.getcwd(), 'download', self.tokenid))
+        if not os.path.exists(os.path.join(os.getcwd(), 'downloadgroup', self.temp)):
+            folder = os.makedirs(os.path.join(os.getcwd(), 'downloadgroup', self.temp))
 
         db_conn = sqlite3.connect('progjar.db')
         db = db_conn.cursor()
@@ -361,7 +361,7 @@ class ChatClient:
                 self.send_string_without_rcv(string)
 
                 self.start_file_socket()
-                f = open(os.path.join(os.getcwd(), 'download', self.tokenid, file_name), 'wb')
+                f = open(os.path.join(os.getcwd(), 'downloadgroup', self.temp, file_name), 'wb')
                 while True:
                     bytes = self.file_socket.recv(1024)
                     if not bytes:
