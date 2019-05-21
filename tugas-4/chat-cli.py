@@ -42,7 +42,14 @@ class ChatClient:
                 return self.ls()
 
             elif (command == 'inbox'):
-                return self.inbox()
+                data = self.inbox()
+                data = eval(data)
+                msg = ""
+                for x in data:
+                    for y in data[x]:
+                        y = eval(y)
+                        msg = msg + "\n" + x + " => " + y['msg'].lstrip()
+                return msg
 
             elif (command == 'send'):
                 usernameto = j[1].strip()
@@ -187,7 +194,7 @@ class ChatClient:
         string = "inbox {} \r\n".format(self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
-            return "{}".format(json.dumps(result['messages']))
+            return json.dumps(result['messages'])
         else:
             return "Error, {}".format(result['message'])
 
