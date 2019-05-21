@@ -51,7 +51,7 @@ class HttpServer:
 				object_address = j[1].strip()
 				return self.http_options(object_address)
 			elif (method=='POST'):
-				object_address = j[1].strip()
+				object_address = '/'+requests[14]
 				return self.http_post(object_address)
 			else:
 				return self.response(400,'Bad Request','',{})
@@ -107,6 +107,23 @@ class HttpServer:
 		headers['Allow']='GET,HEAD,POST,OPTIONS'
 		
 		return self.response(200,'OK','',headers)
+
+	def http_post(self,object_address):
+		files = glob('./*')
+		thedir='.'
+
+		if thedir+object_address not in files:
+			return self.response(404,'Not Found','',{})
+		fp = open(thedir+object_address,'r')
+		isi = fp.read()
+		
+		fext = os.path.splitext(thedir+object_address)[1]
+		content_type = self.types[fext]
+		
+		headers={}
+		headers['Content-type'] = content_type
+		
+		return self.response(200,'OK',isi,headers)
 
 if __name__=="__main__":
 	httpserver = HttpServer()
