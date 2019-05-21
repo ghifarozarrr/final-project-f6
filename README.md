@@ -22,6 +22,12 @@ login user
 auth_login [username] [password]
 ```
 
+melihat list user
+
+```
+ls
+```
+
 mengirim pesan antar user
 
 ```
@@ -58,10 +64,16 @@ bergabung di grup
 join [groupname]
 ```
 
-melihat daftar user yang terdaftar pada grup yang sama
+melihat list grup
 
 ```
-listgroup [groupname]
+ls_group
+```
+
+melihat anggota pada grup
+
+```
+ls_member [groupname]
 ```
 
 keluar dari grup
