@@ -51,8 +51,9 @@ class HttpServer:
 				object_address = j[1].strip()
 				return self.http_options(object_address)
 			elif (method=='POST'):
-				object_address = '/'+requests[14]
-				return self.http_post(object_address)
+				name = requests[-1]
+				# name = '/'+requests[-1]
+				return self.http_post(requests[-1])
 			else:
 				return self.response(400,'Bad Request','',{})
 		except IndexError:
@@ -108,22 +109,26 @@ class HttpServer:
 		
 		return self.response(200,'OK','',headers)
 
-	def http_post(self,object_address):
-		files = glob('./*')
-		thedir='.'
+	def http_post(self, myname):
+		# files = glob('./*')
+		# thedir='.'
 
-		if thedir+object_address not in files:
-			return self.response(404,'Not Found','',{})
-		fp = open(thedir+object_address,'r')
-		isi = fp.read()
+		# if thedir+object_address not in files:
+		# 	return self.response(404,'Not Found','',{})
+		# fp = open(thedir+object_address,'r')
+		# isi = fp.read()
 		
-		fext = os.path.splitext(thedir+object_address)[1]
-		content_type = self.types[fext]
+		# fext = os.path.splitext(thedir+object_address)[1]
+		# content_type = self.types[fext]
 		
-		headers={}
-		headers['Content-type'] = content_type
+		# headers={}
+		# headers['Content-type'] = content_type
 		
-		return self.response(200,'OK',isi,headers)
+		# return self.response(200,'OK','','')
+
+		# isi = "<html><body><h1>POST!</h1><pre>" + myname + "</pre></body></html>"
+		isi = 'Post! '+ myname
+		return self.response(200,'OK',isi,'')
 
 if __name__=="__main__":
 	httpserver = HttpServer()
