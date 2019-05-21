@@ -39,7 +39,13 @@ class ChatClient:
                 return self.logout(self.tokenid)
 
             elif(command == 'ls'):
-                return self.ls()
+                data = self.ls()
+                data = eval(data)
+                msg = "List user:\n"
+                for x in data:
+                    y = x[0]
+                    msg = msg + "- " + y + "\n"
+                return msg
 
             elif (command == 'inbox'):
                 data = self.inbox()
@@ -184,7 +190,7 @@ class ChatClient:
         string = "ls {} \r\n".format(self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
-            return "List user: {}".format(json.dumps(result['messages']))
+            return json.dumps(result['messages'])
         else:
             return "No more user"
 
