@@ -117,7 +117,12 @@ class ChatClient:
 
             elif (command == 'inboxgroup'):
                 group = j[1].strip()
-                return self.inboxgroup(group)
+                data = self.inboxgroup(group)
+                data = eval(data)
+                msg = ""
+                for x in data:
+                    msg = msg + "\n" + x[0] + " => " + x[1].lstrip()
+                return msg
 
             elif (command == 'sendgroup_file'):
                 group = j[1].strip()
@@ -358,7 +363,7 @@ class ChatClient:
         string = "inboxgroup {} {} \r\n".format(group_name, self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
-            return "{}".format(json.dumps(result['messages']))
+            return json.dumps(result['messages'])
         else:
             return "Error, {}".format(result['message'])
 
