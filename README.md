@@ -62,6 +62,7 @@ Mata kuliah Pemrograman Jaringan Kelas F
 
 - ##### Melihat anggota pada grup
     User dapat melihat daftar anggota pada grup setelah bergabung dengan grup tujuan.
+    
     ``ls_member [groupname]``
 
 - ##### Mengirim pesan ke grup
