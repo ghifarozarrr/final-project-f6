@@ -8,110 +8,65 @@ Mata kuliah Pemrograman Jaringan Kelas F
 * **Nuzha Musyafira** - 051116400000014
 * **Ghifaroza Rahmadiana** - 051116400000057
 
-## Spesifikasi Protokol
+## Tugas 4 - Spesifikasi Protokol
 
-register user
+### Auth
+- ##### Registrasi user
+    ``auth_register [username] [password]``
 
-```
-auth_register [username] [password]
-```
+- ##### Login user
+    ``auth_login [username] [password]``
 
-login user
+- ##### Logout user
+    ``auth_logout``
 
-```
-auth_login [username] [password]
-```
+- ##### Melihat list user lain
+    ``ls``
 
-melihat list user
+### Personal Chatting
 
-```
-ls
-```
+- ##### Mengirim pesan antar user
+    ``send [username] [message]``
 
-mengirim pesan antar user
+- ##### Mengecek pesan-pesan masuk dari user lain
+    ``inbox``
 
-```
-send [username] [message]
-```
+- ##### Mengirim file antar user
+    ``send_file [receiver username] [file name]``
 
-mengirim file antar user
+- ##### Mendownload file dari user lain
+    ``download_file [file name]``
 
-```
-send_file [receiver username] [file name]
-```
+### Group Messaging
 
-mendownload file dari user lain
+- ##### Membuat grup baru
+    ``mkgr [groupname]``
 
-```
-download_file [file name]
-```
+- ##### Bergabung di grup
+    ``join [groupname]``
 
-mengecek pesan dari user
+- ##### Melihat list grup yang ada
+    ``ls_group``
 
-```
-inbox
-```
+- ##### Melihat anggota pada grup
+    ``ls_member [groupname]``
 
-membuat grup
+- ##### Mengirim pesan ke grup
+    ``sendgroup [groupname] [message]``
 
-```
-mkgr [groupname]
-```
+- ##### Mengecek pesan dari grup
+    ``inboxgroup [groupname]``
 
-bergabung di grup
+- ##### Mengirim file ke grup
+    ``sendgroup_file [groupname] [file name]``
 
-```
-join [groupname]
-```
+- ##### Mendownload file dari grup
+    ``downloadgroup_file [groupname] [file name]``
 
-melihat list grup
+- ##### Keluar dari grup
+    ``leave [groupname]``
 
-```
-ls_group
-```
-
-melihat anggota pada grup
-
-```
-ls_member [groupname]
-```
-
-keluar dari grup
-
-```
-leave [groupname]
-```
-
-mengirim pesan ke grup
-
-```
-sendgroup [groupname] [message]
-```
-
-mengecek pesan dari grup
-
-```
-inboxgroup [groupname]
-```
-
-mengirim file ke grup
-
-```
-sendgroup_file [groupname] [file name]
-```
-
-mendownload file dari grup
-
-```
-downloadgroup_file [groupname] [file name]
-```
-
-keluar chat
-
-```
-auth_logout
-```
-## Hasil Pengujian Web Server
+## Tugas 5 - Hasil Pengujian Web Server
 
 Synchronous
 
