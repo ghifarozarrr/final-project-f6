@@ -10,16 +10,34 @@ Mata kuliah Pemrograman Jaringan Kelas F
 
 ### Protocol yang sudah dibuat
 
+register user
+
+```
+auth_register [username] [password]
+```
+
 login user
 
 ```
-auth [username] [password]
+auth_login [username] [password]
 ```
 
 mengirim pesan antar user
 
 ```
 send [username] [message]
+```
+
+mengirim file antar user
+
+```
+send_file [receiver username] [file name]
+```
+
+mendownload file dari user lain
+
+```
+download_file [file name]
 ```
 
 mengecek pesan
@@ -43,11 +61,11 @@ join [groupname]
 keluar chat
 
 ```
-logout
+auth_logout
 ```
 
 ## Protocol yang akan dibuat
 
-* mengirim & menerima pesan grup
-* mengirim & menerima file pada grup
-* mengirim & menerima file antar user
+* Mengirim dan menerima pesan grup
+* Mengirim dan menerima file pada grup
+* Mengirim dan menerima file antar user
