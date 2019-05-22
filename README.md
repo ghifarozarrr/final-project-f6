@@ -12,12 +12,12 @@ Mata kuliah Pemrograman Jaringan Kelas F
 
 ### Auth
 - ##### Registrasi user
-    User dapat membuat akun baru dengan memasukkan username serta password. Jika username yang dimasukkan sudah ada, user akan diminta untuk memasukkan username yang lain. Setelah berhasil membuat akun, user akan diminta untuk login menggunakan username dan passwordnya.
+    User dapat membuat akun baru dengan memasukkan username serta password. Jika username yang dimasukkan sudah ada, user akan diminta untuk memasukkan username yang lain. Setelah berhasil membuat akun, user akan diminta untuk login menggunakan username dan passwordnya. Apabila user sudah dalam keadaan login, akan muncul pesan error untuk logout terlebih dahulu.
     
     ``auth_register [username] [password]``
 
 - ##### Login user
-    User dapat login ke akunnya dengan memasukkan username dan passwordnya.
+    User dapat login ke akunnya dengan memasukkan username dan passwordnya. Apabila username atau password yang dimasukkan salah, akan muncul pesan error.
     
     ``auth_login [username] [password]``
 
