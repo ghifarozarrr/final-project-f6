@@ -439,26 +439,31 @@ class ChatClient:
 
         db_conn = sqlite3.connect('progjar.db')
         db = db_conn.cursor()
+        db.execute('SELECT * FROM user_group where group_id=? AND user_id=?', (group_name,self.temp,))
+        cek = db.fetchone()
         db.execute('SELECT * FROM groupchat where group_name=?', (group_name,))
         cek2 = db.fetchone()
         if cek2 != None:
-            lokasi = "upload" + "/" + file_name
-            if os.path.isfile(lokasi):
-                string = "downloadgroup_file {} {} {} \r\n".format(self.tokenid, group_name, file_name)
-                self.send_string_without_rcv(string)
-                time.sleep(1.1)
-                self.start_file_socket()
-                f = open(os.path.join(os.getcwd(), 'downloadgroup', self.temp, file_name), 'wb')
-                while True:
-                    bytes = self.file_socket.recv(1024)
-                    if not bytes:
-                        break
-                    f.write(bytes)
-                f.close()
-                self.file_socket.close()
-                return self.receive_msg_no_loop()
+            if cek != None:
+                lokasi = "upload" + "/" + file_name
+                if os.path.isfile(lokasi):
+                    string = "downloadgroup_file {} {} {} \r\n".format(self.tokenid, group_name, file_name)
+                    self.send_string_without_rcv(string)
+                    time.sleep(1.1)
+                    self.start_file_socket()
+                    f = open(os.path.join(os.getcwd(), 'downloadgroup', self.temp, file_name), 'wb')
+                    while True:
+                        bytes = self.file_socket.recv(1024)
+                        if not bytes:
+                            break
+                        f.write(bytes)
+                    f.close()
+                    self.file_socket.close()
+                    return self.receive_msg_no_loop()
+                else:
+                    return "Error, file not found"
             else:
-                return "Error, file not found"
+                return "Error, you are not group member"
         else:
             return "Error, group not found"
 
