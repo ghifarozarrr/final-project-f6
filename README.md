@@ -27,7 +27,7 @@ Mata kuliah Pemrograman Jaringan Kelas F
     ``auth_logout``
 
 - ##### Melihat list user lain
-    User dapat melihat daftar user yang tersedia.
+    User dapat melihat daftar user lain.
     
     ``ls``
 
@@ -44,12 +44,12 @@ Mata kuliah Pemrograman Jaringan Kelas F
     ``inbox``
 
 - ##### Mengirim file antar user
-    User dapat mengirim pesan berupa file kepada user lainnya dengan memasukkan username tujuan dan nama file yang ingin dikirim. File yang dikirim akan disimpan pada folder upload yang berada di sisi server dengan prefix nama file timestamp file tersebut dikirim.
+    User dapat mengirim pesan berupa file kepada user lainnya dengan memasukkan username tujuan dan nama file yang ingin dikirim. File yang dikirim akan disimpan pada folder upload yang berada di sisi server dengan prefix nama file timestamp pada waktu file tersebut dikirim.
     
     ``send_file [receiver username] [file name]``
 
 - ##### Mendownload file dari user lain
-    User dapat mendownload file yang dikirimkan oleh user lain. File yang didownload user adalah file yang sebelumnya sudah diupload pada folder upload. File yang didownload user akan disimpan pada folder download/username.
+    User dapat mendownload file yang dikirimkan oleh user lain. File yang didownload user adalah file yang sebelumnya sudah diupload pada folder upload. File yang didownload user akan disimpan pada folder download/username_user.
     
     ``download_file [file name]``
 
@@ -61,7 +61,7 @@ Mata kuliah Pemrograman Jaringan Kelas F
     ``mkgr [groupname]``
 
 - ##### Bergabung di grup
-    User dapat bergabung dengan grup yang sudah tersedia. Apabila user bergabung dengan nama grup yang tidak tersedia, maka akan muncul pesan error bahwa grup tidak ditemukan.
+    User dapat bergabung dengan grup yang sudah tersedia dengan memasukkan nama grup. Apabila user bergabung dengan nama grup yang tidak tersedia, maka akan muncul pesan error bahwa grup tidak ditemukan.
     
     ``join [groupname]``
     
@@ -80,8 +80,8 @@ Mata kuliah Pemrograman Jaringan Kelas F
 
     ``sendgroup [groupname] [message]``
 
-- ##### Mengecek pesan dari grup
-    User dapat melihat pesan yang masuk pada grup setelah beragbung dengan grup tujuan. Apabila belum bergabung dengan grup tersebut, maka akan muncul pesan error bahwa user belum menjadi anggota grup tersebut. Selain itu, apabila grup tidak tersedia maka akan muncul pesan error bahwa grup tidak ditemukan.
+- ##### Melihat pesan dari grup
+    User dapat melihat pesan yang masuk pada grup setelah bergabung dengan grup tujuan. Apabila belum bergabung dengan grup tersebut, maka akan muncul pesan error bahwa user belum menjadi anggota grup tersebut. Selain itu, apabila grup tidak tersedia maka akan muncul pesan error bahwa grup tidak ditemukan.
     
     ``inboxgroup [groupname]``
 
@@ -91,7 +91,7 @@ Mata kuliah Pemrograman Jaringan Kelas F
     ``sendgroup_file [groupname] [file name]``
 
 - ##### Mendownload file dari grup
-    User dapat mendownload file yang dikirimkan oleh user lain setelah bergabung dengan grup tujuan. File yang didownload user adalah file yang sebelumnya sudah diupload pada folder upload. File yang didownload user akan disimpan pada folder downloadgroup/username. Apabila belum bergabung dengan grup tersebut, maka akan muncul pesan error bahwa user belum menjadi anggota grup tersebut. Selain itu, apabila grup tidak tersedia maka akan muncul pesan error bahwa grup tidak ditemukan.
+    User dapat mendownload file yang dikirimkan oleh user lain setelah bergabung dengan grup tujuan. File yang didownload user adalah file yang sebelumnya sudah diupload pada folder upload. File yang didownload user akan disimpan pada folder downloadgroup/username_user. Apabila belum bergabung dengan grup tersebut, maka akan muncul pesan error bahwa user belum menjadi anggota grup tersebut. Selain itu, apabila grup tidak tersedia maka akan muncul pesan error bahwa grup tidak ditemukan.
     
     ``downloadgroup_file [groupname] [file name]``
 
