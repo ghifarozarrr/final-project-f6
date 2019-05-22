@@ -102,7 +102,7 @@ Mata kuliah Pemrograman Jaringan Kelas F
 
 ## Tugas 5 - Hasil Pengujian Web Server
 
-Synchronous
+Web Server Synchronous
 
 | Requests | Concurrency | Time/Request (ms) | Total Time (s) | Transfer Rate (Kbytes/s) | Request/Second |
 |:--------:|:-----------:|:-----------------:|:--------------:|:------------------------:|:--------------:|
@@ -122,7 +122,7 @@ Synchronous
 |   20000  |      5      |       1.908       |     38.151     |          166.89          |     524.23     |
 |   20000  |      10     |       1.894       |     37.878     |          168.10          |     528.01     |
 
-Asynchronous
+Web Server Asynchronous
 
 | Requests | Concurrency | Time/Request (ms) | Total Time (s) | Transfer Rate (Kbytes/s) | Request/Second |
 |:--------:|:-----------:|:-----------------:|:--------------:|:------------------------:|:--------------:|
@@ -144,7 +144,8 @@ Asynchronous
 
 Berdasarkan hasil pengujian di atas, didapatkan bahwa semakin banyak request, maka semakin lama waktu yang dibutuhkan untuk melayani setiap request. Namun hasil asynchronous relatif lebih cepat dibandingkan synchronous.
 
-Synchronous Load Balancer
+Selanjutnya akan dilakukan pengujian web server dengan menjalankan load balancer. Banyak backend server pada load balancer adalah 5. 
+Web Server Synchronous - Load Balancer
 
 | Requests | Concurrency | Time/Request (ms) | Total Time (s) | Transfer Rate (Kbytes/s) | Request/Second |
 |:--------:|:-----------:|:-----------------:|:--------------:|:------------------------:|:--------------:|
@@ -164,7 +165,7 @@ Synchronous Load Balancer
 |   20000  |      5      |       1.000       |     19.996     |           0.00           |     1000.22    |
 |   20000  |      10     |       1.113       |     22.251     |           0.00           |     898.82     |
 
-Asynchronous Load Balancer
+Web Server Asynchronous - Load Balancer
 
 | Requests | Concurrency | Time/Request (ms) | Total Time (s) | Transfer Rate (Kbytes/s) | Request/Second |
 |:--------:|:-----------:|:-----------------:|:--------------:|:------------------------:|:--------------:|
@@ -184,4 +185,4 @@ Asynchronous Load Balancer
 |   20000  |      5      |       0.963       |     19.268     |           0.00           |     1038.01    |
 |   20000  |      10     |       0.932       |     18.644     |           0.00           |     1072.72    |
 
-Berdasarkan hasil pengujian di atas, didapatkan bahwa load balancer terbukti dapat meningkatkan kemampuan sistem dalam melayani lebih banyak request dengan lebih cepat.
+Berdasarkan hasil pengujian di atas, didapatkan bahwa load balancer terbukti dapat meningkatkan kemampuan sistem dalam melayani request dengan lebih cepat.
