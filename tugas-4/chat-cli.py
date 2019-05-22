@@ -47,6 +47,8 @@ class ChatClient:
                     for x in data:
                         y = x[0]
                         msg = msg + "- " + y + "\n"
+                    if (msg == ''):
+                        msg = 'No more user'
                 except:
                     msg = 'Error, please login first'
                 return msg
