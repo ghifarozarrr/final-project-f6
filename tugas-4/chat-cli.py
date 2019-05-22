@@ -40,11 +40,15 @@ class ChatClient:
 
             elif(command == 'ls'):
                 data = self.ls()
-                data = eval(data)
-                msg = "List user:\n"
-                for x in data:
-                    y = x[0]
-                    msg = msg + "- " + y + "\n"
+                msg=''
+                try:
+                    data = eval(data)
+                    msg = "List user:\n"
+                    for x in data:
+                        y = x[0]
+                        msg = msg + "- " + y + "\n"
+                except:
+                    msg = 'Error, please login first'
                 return msg
 
             elif (command == 'inbox'):
@@ -57,7 +61,7 @@ class ChatClient:
                             y = eval(y)
                             msg = msg + "\n" + x + " => " + y['msg'].lstrip()
                 except:
-                    msg = 'Inbox is empty'
+                    msg = 'Error, please login first'
                 return msg
 
             elif (command == 'send'):
@@ -88,11 +92,15 @@ class ChatClient:
 
             elif (command == 'ls_group'):
                 data = self.ls_group()
-                data = eval(data)
-                msg = "List group:\n"
-                for x in data:
-                    y = x[0]
-                    msg = msg + "- " + y + "\n"
+                msg=''
+                try:
+                    data = eval(data)
+                    msg = "List group:\n"
+                    for x in data:
+                        y = x[0]
+                        msg = msg + "- " + y + "\n"
+                except:
+                    msg = 'Error, please login first'
                 return msg
 
             elif (command == 'ls_member'):
