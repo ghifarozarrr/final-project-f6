@@ -342,10 +342,8 @@ class ChatClient:
         result = self.sendstring(string)
         if result['status'] == 'OK':
             return {'status': 'OK', 'message': json.dumps(result['messages'])}
-            # return json.dumps(result['messages'])
         else:
             return {'status': 'ERROR', 'message': "Error, {}".format(result['message'])}
-            # return "Error, {}".format(result['message'])
 
     def leave(self, group_name):
         if (self.tokenid == ""):
@@ -374,10 +372,8 @@ class ChatClient:
         result = self.sendstring(string)
         if result['status'] == 'OK':
             return {'status': 'OK', 'message': json.dumps(result['messages'])}
-            # return json.dumps(result['messages'])
         else:
             return {'status': 'ERROR', 'message': "Error, {}".format(result['message'])}
-            # return "Error, {}".format(result['message'])
 
     def sendgroup_file(self, group_name, message):
         if (self.tokenid == ""):
