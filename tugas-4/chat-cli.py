@@ -92,7 +92,6 @@ class ChatClient:
                     msg = msg + "- " + y + "\n"
                 return msg
 
-
             elif (command == 'ls_member'):
                 group = j[1].strip()
                 result = self.ls_member(group)
@@ -213,7 +212,7 @@ class ChatClient:
 
     def ls(self):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "ls {} \r\n".format(self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -223,7 +222,7 @@ class ChatClient:
 
     def inbox(self):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "inbox {} \r\n".format(self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -233,7 +232,7 @@ class ChatClient:
 
     def sendmessage(self, usernameto, message):
         if (self.tokenid == ''):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "send {} {} {} \r\n".format(self.tokenid, usernameto, message)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -307,7 +306,7 @@ class ChatClient:
 
     def mkgr(self, group_name):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "mkgr {} {} \r\n".format(group_name, self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -317,7 +316,7 @@ class ChatClient:
 
     def join(self, group_name):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "join {} {} \r\n".format(group_name, self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -327,17 +326,15 @@ class ChatClient:
 
     def ls_group(self):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "ls_group {} \r\n".format(self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
             return json.dumps(result['messages'])
-        else:
-            return "No more group"
 
     def ls_member(self, group_name):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "ls_member {} {} \r\n".format(group_name, self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -347,7 +344,7 @@ class ChatClient:
 
     def leave(self, group_name):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "leave {} {} \r\n".format(group_name, self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -357,7 +354,7 @@ class ChatClient:
 
     def sendgroup(self, group_name, message):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "sendgroup {} {} {} \r\n".format(group_name, self.tokenid, message)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -367,7 +364,7 @@ class ChatClient:
 
     def inboxgroup(self, group_name):
         if (self.tokenid == ""):
-            return "Error, not authorized"
+            return "Error, please login first"
         string = "inboxgroup {} {} \r\n".format(group_name, self.tokenid)
         result = self.sendstring(string)
         if result['status'] == 'OK':
@@ -426,7 +423,7 @@ class ChatClient:
             if os.path.isfile(lokasi):
                 string = "downloadgroup_file {} {} {} \r\n".format(self.tokenid, group_name, file_name)
                 self.send_string_without_rcv(string)
-
+                time.sleep(1.1)
                 self.start_file_socket()
                 f = open(os.path.join(os.getcwd(), 'downloadgroup', self.temp, file_name), 'wb')
                 while True:
