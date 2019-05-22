@@ -54,12 +54,14 @@ class ChatClient:
             elif (command == 'inbox'):
                 data = self.inbox()
                 msg = ""
-                try: 
+                try:
                     data = eval(data)
                     for x in data:
                         for y in data[x]:
                             y = eval(y)
                             msg = msg + "\n" + x + " => " + y['msg'].lstrip()
+                    if(msg == ''):
+                        msg = 'Message is empty'
                 except:
                     msg = 'Error, please login first'
                 return msg
@@ -106,16 +108,19 @@ class ChatClient:
             elif (command == 'ls_member'):
                 group = j[1].strip()
                 result = self.ls_member(group)
-                if result['status'] == "OK":
-                    data = result['message']
-                    data = eval(data)
-                    msg = 'Member group "'
-                    for x in data:
-                        msg = msg + x + '" :\n'
-                        for y in data[x]:
-                            msg = msg + "- " + y + "\n"
-                else:
-                    msg = result['message']
+                try:
+                    if result['status'] == "OK":
+                        data = result['message']
+                        data = eval(data)
+                        msg = 'Member group "'
+                        for x in data:
+                            msg = msg + x + '" :\n'
+                            for y in data[x]:
+                                msg = msg + "- " + y + "\n"
+                    else:
+                        msg = result['message']
+                except:
+                    msg = 'Error, please login first'
                 return msg
 
             elif (command == 'leave'):
@@ -132,14 +137,19 @@ class ChatClient:
             elif (command == 'inboxgroup'):
                 group = j[1].strip()
                 result = self.inboxgroup(group)
-                if result['status'] == "OK":
-                    data = result['message']
-                    data = eval(data)
-                    msg = ""
-                    for x in data:
-                        msg = msg + "\n" + x[0] + " => " + x[1].lstrip()
-                else:
-                    msg = result['message']
+                try:
+                    if result['status'] == "OK":
+                        data = result['message']
+                        data = eval(data)
+                        msg = ""
+                        for x in data:
+                            msg = msg + "\n" + x[0] + " => " + x[1].lstrip()
+                        if (msg == ''):
+                            msg = 'Message is empty'
+                    else:
+                        msg = result['message']
+                except:
+                    msg = 'Error, please login first'
                 return msg
 
             elif (command == 'sendgroup_file'):
