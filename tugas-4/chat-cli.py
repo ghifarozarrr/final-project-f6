@@ -49,12 +49,15 @@ class ChatClient:
 
             elif (command == 'inbox'):
                 data = self.inbox()
-                data = eval(data)
                 msg = ""
-                for x in data:
-                    for y in data[x]:
-                        y = eval(y)
-                        msg = msg + "\n" + x + " => " + y['msg'].lstrip()
+                try: 
+                    data = eval(data)
+                    for x in data:
+                        for y in data[x]:
+                            y = eval(y)
+                            msg = msg + "\n" + x + " => " + y['msg'].lstrip()
+                except:
+                    msg = 'Inbox is empty'
                 return msg
 
             elif (command == 'send'):
