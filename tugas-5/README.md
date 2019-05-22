@@ -40,9 +40,10 @@ Web Server Asynchronous
 |   20000  |      5      |       0.713       |     14.263     |          446.43          |     1402.27    |
 |   20000  |      10     |       0.754       |     15.071     |          422.47          |     1327.03    |
 
-Berdasarkan hasil pengujian di atas, didapatkan bahwa semakin banyak request, maka semakin lama waktu yang dibutuhkan untuk melayani setiap request. Namun hasil asynchronous relatif lebih cepat dibandingkan synchronous.
+Berdasarkan hasil pengujian di atas, didapatkan bahwa semakin banyak request, maka semakin lama waktu yang dibutuhkan untuk melayani setiap request. Namun hasil asynchronous relatif lebih cepat dibandingkan synchronous dalam menangani jumlah request dan concurrency yang sama.
 
 Selanjutnya akan dilakukan pengujian web server dengan menjalankan load balancer. Banyak backend server pada load balancer adalah 5. 
+
 Web Server Synchronous - Load Balancer
 
 | Requests | Concurrency | Time/Request (ms) | Total Time (s) | Transfer Rate (Kbytes/s) | Request/Second |
@@ -83,4 +84,4 @@ Web Server Asynchronous - Load Balancer
 |   20000  |      5      |       0.963       |     19.268     |           0.00           |     1038.01    |
 |   20000  |      10     |       0.932       |     18.644     |           0.00           |     1072.72    |
 
-Berdasarkan hasil pengujian di atas, didapatkan bahwa load balancer terbukti dapat meningkatkan kemampuan sistem dalam melayani request dengan lebih cepat.
+Berdasarkan hasil pengujian di atas, didapatkan bahwa load balancer terbukti dapat meningkatkan kemampuan sistem dalam melayani request dengan lebih cepat pada web server synchronous, sedangkan pada web server asynchronous penggunaan load balancer tidak berpengaruh dan cenderung lebih lambat.
